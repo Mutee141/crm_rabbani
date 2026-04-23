@@ -1,0 +1,312 @@
+{% extends "manager/base.html" %}
+
+{% block title %}Assigned Leads - Manager{% endblock %}
+{% block page_title %}Assigned Leads Distribution{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 50px; height: 50px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Manager - Assigned Leads</h3>
+                        <p style="margin: 0; opacity: 0.9;">Manage and reassign leads assigned by GM</p>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 2rem;">
+                <div style="text-align: center; padding: 0 1.5rem; border-left: 2px solid rgba(255, 255, 255, 0.3);">
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Total From GM</div>
+                    <div style="font-size: 2.5rem; font-weight: 800;">{{ assignments.count }}</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Selected</div>
+                    <div style="font-size: 2.5rem; font-weight: 800;" id="selected-count">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- PENDING DISTRIBUTION TABLE -->
+    <div class="card card-ghost mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin: 0; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-list-ul me-2" style="color: #446bab;"></i>Pending Distribution
+                </h5>
+                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.5rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.85rem;">
+                    <i class="fas fa-star me-2"></i>New Assignments
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="width: 50px; color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">
+                                <input type="checkbox" id="select-all" class="form-check-input" style="width: 18px; height: 18px; cursor: pointer;">
+                            </th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Details</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Source</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Contact Info</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Current Status</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in assignments %}
+                        <tr style="transition: background-color 0.2s;">
+                            <td>
+                                <input type="checkbox" name="selected_leads" value="{{ item.lead.id }}" class="lead-checkbox form-check-input" style="width: 18px; height: 18px; cursor: pointer;">
+                            </td>
+                            <td>
+                                <div style="font-weight: 700; color: #1a3a4a;">{{ item.lead.name }}</div>
+                                <small style="color: #95a5a6;">ID: #{{ item.lead.id }}</small>
+                            </td>
+                            <td>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                    {{ item.lead.source }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="color: #1a3a4a; font-weight: 600;">{{ item.lead.phone }}</div>
+                                <small style="color: #95a5a6;">{{ item.lead.email|default:"N/A" }}</small>
+                            </td>
+                            <td>
+                                {% if item.lead.status == 'Hot' %}
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-fire me-1"></i>{{ item.lead.status }}
+                                    </span>
+                                {% elif item.lead.status == 'Warm' %}
+                                    <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-thermometer-half me-1"></i>{{ item.lead.status }}
+                                    </span>
+                                {% elif item.lead.status == 'Cold' %}
+                                    <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-snowflake me-1"></i>{{ item.lead.status }}
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1"></i>{{ item.lead.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="color: #95a5a6; font-size: 0.9rem;">
+                                <i class="fas fa-calendar me-1"></i>{{ item.assigned_date|date:"M d, Y" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div style="color: #95a5a6;">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                                    <p style="font-size: 1.1rem; margin: 0;">No new leads currently assigned to you by the GM.</p>
+                                    <small style="color: #7f8c8d;">Check back later for new assignments</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ASSIGNMENT SECTION -->
+    <div class="card card-ghost">
+        <div class="card-body">
+            <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                <i class="fas fa-share-alt me-2" style="color: #446bab;"></i>Lead Distribution
+            </h5>
+
+            <div class="row g-4">
+                <!-- Assign Action -->
+                <div class="col-lg-4">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                        <i class="fas fa-user-friends me-2" style="color: #446bab;"></i>Assign To
+                    </label>
+                    <select name="assign_to" class="form-control form-select" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1; color: #1a3a4a; font-weight: 600;" required>
+                        <optgroup label="Manage Yourself" style="color: #446bab; font-weight: 700;">
+                            <option value="self" style="color: #1a3a4a;">📌 Assign to Myself (Manager)</option>
+                        </optgroup>
+                        <optgroup label="Delegate to Team Leads" style="color: #446bab; font-weight: 700;">
+                            {% for profile in team_leads %}
+                                <option value="{{ profile.user.id }}" style="color: #1a3a4a;">
+                                    👤 Team Lead: {{ profile.user.get_full_name|default:profile.user.username }}
+                                </option>
+                            {% empty %}
+                                <option disabled style="color: #95a5a6;">No Team Leads reporting to you</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Instructions -->
+                <div class="col-lg-4">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                        <i class="fas fa-comment-dots me-2" style="color: #446bab;"></i>Remarks (Optional)
+                    </label>
+                    <input type="text" name="remarks" class="form-control" placeholder="Add notes or instructions for the assignee..." style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1; color: #1a3a4a;">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-lg-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary-custom w-100" style="padding: 0.75rem 2rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-check-circle"></i> Apply Assignment
+                    </button>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div style="background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab; padding: 1rem; margin-top: 1.5rem;">
+                <div style="display: flex; gap: 1rem;">
+                    <div style="color: #446bab; font-size: 1.2rem;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: #1a3a4a; margin-bottom: 0.25rem;">Pro Tip</div>
+                        <p style="color: #7f8c8d; margin: 0; font-size: 0.9rem;">
+                            Select the leads you want to assign, choose a destination (yourself or a team lead), and optionally add remarks. Once submitted, the leads will be transferred immediately.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<!-- SELECTION SUMMARY -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1rem; font-weight: 700; color: #1a3a4a; margin-bottom: 1rem;">
+                    <i class="fas fa-chart-pie me-2" style="color: #446bab;"></i>Assignment Summary
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab; text-align: center;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Total Available</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #446bab;">{{ assignments.count }}</div>
+                            <small style="color: #7f8c8d;">Leads from GM</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(255, 165, 0, 0.08); border-radius: 0.75rem; border-left: 4px solid #ffa500; text-align: center;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Currently Selected</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ffa500;" id="summary-selected">0</div>
+                            <small style="color: #7f8c8d;">Pending distribution</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(38, 208, 124, 0.08); border-radius: 0.75rem; border-left: 4px solid #26d07c; text-align: center;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Not Selected</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #26d07c;" id="summary-unselected">{{ assignments.count }}</div>
+                            <small style="color: #7f8c8d;">Remaining leads</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(255, 87, 87, 0.08); border-radius: 0.75rem; border-left: 4px solid #ff5757; text-align: center;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Selection Rate</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ff5757;" id="summary-percentage">0%</div>
+                            <small style="color: #7f8c8d;">Of total leads</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #446bab;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15);
+    }
+
+    .form-control, .form-select {
+        color: #1a3a4a;
+    }
+
+    .form-control::placeholder {
+        color: #95a5a6;
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    .form-check-input:checked {
+        background-color: #446bab;
+        border-color: #446bab;
+    }
+
+    .form-check-input:focus {
+        border-color: #446bab;
+        box-shadow: 0 0 0 0.25rem rgba(68, 107, 171, 0.25);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #446bab 0%, #1a3a4a 100%);
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(68, 107, 171, 0.3);
+        color: white;
+    }
+</style>
+
+<script>
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.lead-checkbox');
+    const displayCount = document.getElementById('selected-count');
+    const totalAssignments = {{ assignments.count }};
+
+    function updateCount() {
+        const checkedCount = document.querySelectorAll('.lead-checkbox:checked').length;
+        const uncheckedCount = totalAssignments - checkedCount;
+        const percentage = totalAssignments > 0 ? Math.round((checkedCount / totalAssignments) * 100) : 0;
+        
+        displayCount.innerText = checkedCount;
+        document.getElementById('summary-selected').innerText = checkedCount;
+        document.getElementById('summary-unselected').innerText = uncheckedCount;
+        document.getElementById('summary-percentage').innerText = percentage + '%';
+    }
+
+    if(selectAll) {
+        selectAll.addEventListener('change', (e) => {
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateCount));
+
+    // Initialize on page load
+    updateCount();
+</script>
+
+{% endblock %}

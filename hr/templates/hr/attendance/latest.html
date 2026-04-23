@@ -1,0 +1,210 @@
+{% extends "hr/base.html" %}
+
+{% block title %}Latest Attendance - HR{% endblock %}
+{% block page_title %}Latest Attendance{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb mb-0" style="background: transparent; padding: 0;">
+        <li class="breadcrumb-item">
+            <a href="{% url 'hr:hr_dashboard' %}" style="color: #446bab; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item active" style="color: #95a5a6; font-weight: 600;">
+            <i class="fas fa-clock me-1"></i>Latest Attendance
+        </li>
+    </ol>
+</nav>
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3">
+            <div style="font-size: 2.5rem;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Attendance Management</h3>
+                <p style="margin: 0; opacity: 0.9;">Monitor daily presence and check-in/out activities</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEADER WITH ACTION -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin: 0; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+        <i class="fas fa-list me-2" style="color: #446bab;"></i>Daily Attendance Records
+    </h5>
+    <a href="{% url 'hr:attendance_generate' %}" style="background: linear-gradient(135deg, #446bab, #1a3a4a); color: white; border: none; border-radius: 0.75rem; padding: 0.75rem 2rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+        <i class="fas fa-plus-circle"></i> Generate New
+    </a>
+</div>
+
+<!-- STATS GRID -->
+<div class="row g-3 mb-4">
+    <!-- Total Present -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Present</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ total_present|default:"0" }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check-circle"></i> On duty
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Late Arrivals -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Late Arrivals</div>
+                    <div class="stat-value" style="color: #ffa500;">{{ total_late|default:"0" }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-hourglass-half"></i> Late check-in
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Absent -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Absent</div>
+                    <div class="stat-value" style="color: #ff5757;">{{ total_absent|default:"0" }}</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-times-circle"></i> Absent
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Records -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Records</div>
+                    <div class="stat-value" style="color: #446bab;">{{ records|length }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-database"></i> All entries
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ATTENDANCE TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        {% if records %}
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; padding-left: 1.5rem;">Employee</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Date</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Check In</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Check Out</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Total Hours</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; padding-right: 1.5rem;">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr style="transition: background-color 0.2s;">
+                            <td style="padding-left: 1.5rem;">
+                                <div style="font-weight: 700; color: #1a3a4a;">{{ r.employee.name }}</div>
+                                <small style="color: #95a5a6;">{{ r.employee.emp_id|default:"N/A" }}</small>
+                            </td>
+                            <td>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                    {{ r.date|date:"d M, Y" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color: #26d07c; font-weight: 600;">
+                                    <i class="fas fa-arrow-right-to-bracket me-1" style="opacity: 0.7;"></i>{{ r.check_in|time:"h:i A"|default:"-" }}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color: #ff5757; font-weight: 600;">
+                                    <i class="fas fa-arrow-right-from-bracket me-1" style="opacity: 0.7;"></i>{{ r.check_out|time:"h:i A"|default:"-" }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 700; color: #1a3a4a;">{{ r.total_hours|default:"0" }} hrs</td>
+                            <td>
+                                {% if r.status == "Present" %}
+                                    <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1"></i>{{ r.status }}
+                                    </span>
+                                {% elif r.status == "Late" %}
+                                    <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-hourglass-half me-1"></i>{{ r.status }}
+                                    </span>
+                                {% elif r.status == "Absent" %}
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-times-circle me-1"></i>{{ r.status }}
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        {{ r.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="color: #95a5a6; font-size: 0.9rem; padding-right: 1.5rem;">{{ r.remarks|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 2rem;">
+                <div style="color: #95a5a6;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                    <h5 style="color: #1a3a4a; font-weight: 700; margin-bottom: 0.5rem;">No Attendance Records Found</h5>
+                    <p style="margin: 0; color: #7f8c8d;">Check back later for attendance data</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(68, 107, 171, 0.3);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,333 @@
+{% extends "hr/base.html" %}
+{% block title %}Leave Management{% endblock %}
+{% block page_title %}Leave Management{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'hr:hr_dashboard' %}" class="text-decoration-none" style="color: #2d9d78;">Dashboard</a></li>
+        <li class="breadcrumb-item active">Leave Management</li>
+    </ol>
+</nav>
+
+<!-- WELCOME BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">📅 Leave Management</h3>
+                <p style="margin: 0; opacity: 0.9;">Track and manage employee leave requests efficiently</p>
+            </div>
+            <div style="font-size: 3rem; opacity: 0.2;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS GRID -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Leaves</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_leaves }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-file-alt me-1"></i>All requests
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Full Leave</div>
+                    <div class="stat-value" style="color: #ff5757;">{{ full_leaves }}</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-ban me-1"></i>Absence
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-ban"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Short Leave</div>
+                    <div class="stat-value" style="color: #ffa500;">{{ short_leaves }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-hourglass-half me-1"></i>Half day
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">On Duty</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ on_duty }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check-double me-1"></i>Approved
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-double"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ACTION HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 0.3rem;">
+            <i class="fas fa-list me-2" style="color: #446bab;"></i>Leave Records
+        </h5>
+        <small style="color: #95a5a6;">
+            Showing 
+            <span style="font-weight: 600; color: #446bab;">{{ leaves|length }}</span> 
+            leave request(s)
+        </small>
+    </div>
+    <a 
+        href="{% url 'hr:leave_create' %}"
+        class="btn btn-primary-custom" 
+        style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;"
+    >
+        <i class="fas fa-plus-circle me-2"></i> Add New Leave
+    </a>
+</div>
+
+<!-- LEAVES TABLE -->
+<div class="card card-ghost">
+    <div class="card-body p-0">
+        {% if leaves %}
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Employee</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Leave Type</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Date</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Reason</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; text-align: center;">Attachment</th>
+                            <th class="text-end" style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600; color: #1a3a4a;">{{ leave.employee.name }}</div>
+                                <small style="color: #95a5a6;">{{ leave.employee.emp_id }}</small>
+                            </td>
+                            <td>
+                                {% if leave.leave_type == 'Full Leave' %}
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        {{ leave.leave_type }}
+                                    </span>
+                                {% elif leave.leave_type == 'Short Leave' %}
+                                    <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        {{ leave.leave_type }}
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        {{ leave.leave_type }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="color: #7f8c8d;">{{ leave.date|date:"d M, Y" }}</td>
+                            <td>
+                                <small style="color: #95a5a6;">
+                                    {% if leave.reason %}
+                                        {{ leave.reason|truncatechars:40 }}
+                                    {% else %}
+                                        <span style="color: #bdc3c7;">-</span>
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if leave.attachment %}
+                                    <a href="{{ leave.attachment.url }}" target="_blank" class="btn-sm-action" style="background: rgba(68, 107, 171, 0.15); color: #446bab; width: 35px; height: 35px; border-radius: 0.5rem; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
+                                {% else %}
+                                    <span style="color: #bdc3c7;">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a 
+                                        href="{% url 'hr:leave_update' leave.pk %}"
+                                        class="btn-sm-action btn-edit" 
+                                        title="Edit Leave"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button 
+                                        type="button"
+                                        class="btn-sm-action btn-delete" 
+                                        title="Delete Leave"
+                                        onclick="confirmDelete('{{ leave.employee.name }}', '{{ leave.pk }}')"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <form id="delete-form-{{ leave.pk }}" method="post" style="display: none;">
+                                        {% csrf_token %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div style="padding: 3rem 2rem; text-align: center;">
+                <div style="font-size: 4rem; color: #95a5a6; opacity: 0.3; margin-bottom: 1rem;">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h5 style="color: #7f8c8d; margin-bottom: 0.5rem; font-weight: 600;">No Leave Records Found</h5>
+                <p style="color: #95a5a6; margin-bottom: 1.5rem;">
+                    Start by adding a new leave request
+                </p>
+                <a 
+                    href="#" 
+                    class="btn btn-primary-custom" 
+                    style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;"
+                >
+                    <i class="fas fa-plus-circle me-2"></i> Add New Leave
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Custom Styles for this page -->
+<style>
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: #2d9d78;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #1a3a4a;
+    }
+
+    .breadcrumb-item.active {
+        color: #95a5a6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-sm-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+    }
+
+    .btn-edit:hover {
+        background: #446bab;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: rgba(255, 87, 87, 0.15);
+        color: #ff5757;
+    }
+
+    .btn-delete:hover {
+        background: #ff5757;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #446bab;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #95a5a6;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #ecf0f1;
+        color: #446bab;
+    }
+
+    .stat-change.positive {
+        color: #26d07c;
+    }
+
+    .stat-change.negative {
+        color: #ff5757;
+    }
+</style>
+
+<script>
+    function confirmDelete(name, pk) {
+        if (confirm(`Are you sure you want to delete the leave request for ${name}?`)) {
+            document.getElementById(`delete-form-${pk}`).submit();
+        }
+    }
+</script>
+
+{% endblock %}

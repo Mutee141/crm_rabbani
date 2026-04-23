@@ -1,0 +1,74 @@
+{% extends "gm/base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Project | GM{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 800px;">
+    <div class="card border-0 shadow-lg">
+        <div class="card-header text-white py-3" style="background: #2c5f7a;">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas {% if is_edit %}fa-edit{% else %}fa-plus-circle{% endif %} me-2"></i>
+                {% if is_edit %}Edit Project: {{ project.name }}{% else %}Create New Project{% endif %}
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Project Name</label>
+                        {{ project_form.name }}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Project Type</label>
+                        {{ project_form.project_type }}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Status</label>
+                        {{ project_form.status }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Location</label>
+                        {{ project_form.location }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Launch Date</label>
+                        {{ project_form.launch_date }}
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Description</label>
+                        {{ project_form.description }}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'gm:project_list' %}" class="btn btn-light px-4">Cancel</a>
+                    <button type="submit" class="btn text-white px-4" style="background: #ffa500;">
+                        <i class="fas fa-save me-1"></i> Save Project Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling Django Form widgets to look professional */
+    input, select, textarea { 
+        width: 100%; 
+        padding: 10px; 
+        border: 1px solid #dee2e6; 
+        border-radius: 8px; 
+        font-size: 0.95rem;
+    }
+    input:focus { outline: none; border-color: #2c5f7a; box-shadow: 0 0 0 3px rgba(44, 95, 122, 0.1); }
+</style>
+{% endblock %}

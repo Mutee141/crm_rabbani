@@ -1,0 +1,362 @@
+{% extends "gm/base.html" %}
+{% load static %}
+
+{% block title %}Lead Management | GM{% endblock %}
+{% block page_title %}Lead Management{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'gm:dashboard' %}" class="text-decoration-none" style="color: #2d9d78;"><i class="fas fa-home me-1"></i>Dashboard</a></li>
+            <li class="breadcrumb-item active" style="color: #95a5a6;"><i class="fas fa-users me-1"></i>Lead Management</li>
+        </ol>
+    </nav>
+
+    <!-- WELCOME BANNER -->
+    <div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 style="font-weight: 800; margin-bottom: 0.5rem;">📊 Lead Repository</h3>
+                    <p style="margin: 0; opacity: 0.9;">Manage your bulk uploads and track staff assignments</p>
+                </div>
+                <div style="font-size: 3rem; opacity: 0.2;">
+                    <i class="fas fa-database"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Total Leads</div>
+                        <div class="stat-value" style="color: #446bab;">{{ leads.count|default:"0" }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> All leads
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Unassigned</div>
+                        <div class="stat-value" style="color: #ffa500;">{{ unassigned_count|default:"0" }}</div>
+                        <div class="stat-change">
+                            <i class="fas fa-hourglass-start"></i> Pending
+                        </div>
+                    </div>
+                    <div class="stat-icon secondary">
+                        <i class="fas fa-hourglass-start"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Assigned</div>
+                        <div class="stat-value" style="color: #26d07c;">{{ assignments.count|default:"0" }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check-circle"></i> Assigned
+                        </div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Conversion Rate</div>
+                        <div class="stat-value" style="color: #2d9d78;">{% widthratio assignments.count leads.count 100 %}%</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-chart-line"></i> Growth
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(45, 157, 120, 0.1); color: #2d9d78;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="d-flex justify-content-end gap-2 mb-4">
+        <a href="{% url 'gm:bulk_lead_upload' %}" class="btn btn-primary-custom" style="background: #ffa500; border: none; font-weight: 600; color: white;">
+            <i class="fas fa-file-upload me-2"></i> Bulk Upload
+        </a>
+        <a href="{% url 'gm:assign_lead' %}" class="btn btn-primary-custom" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;">
+            <i class="fas fa-user-plus me-2"></i> Assign Lead
+        </a>
+    </div>
+
+    <!-- LEADS TABLE -->
+    <div class="card card-ghost">
+        <div class="card-body p-0">
+            <!-- SEARCH SECTION -->
+            <div style="padding: 1.5rem; border-bottom: 1px solid #ecf0f1;">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1rem;">
+                    <i class="fas fa-filter me-2"></i>Search Leads
+                </h5>
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text" style="background: white; border-right: none; border: 2px solid #ecf0f1;">
+                        <i class="fas fa-search" style="color: #95a5a6;"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone..." style="border-left: none; border: 2px solid #ecf0f1;">
+                </div>
+            </div>
+
+            {% if leads %}
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0" id="leadsTable">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Info</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Contact Details</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Source</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assignment</th>
+                            <th class="text-end" style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lead in leads %}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div class="avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
+                                        {{ lead.name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #1a3a4a;">{{ lead.name }}</div>
+                                        <small style="color: #95a5a6;">Added: {{ lead.created_at|date:"d M, Y" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="margin-bottom: 0.5rem; color: #1a3a4a;"><i class="fas fa-phone-alt me-2" style="color: #446bab;"></i>{{ lead.phone }}</div>
+                                {% if lead.email %}
+                                <div style="font-size: 0.85rem; color: #95a5a6;"><i class="fas fa-envelope me-2" style="color: #446bab;"></i>{{ lead.email }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                    {{ lead.get_source_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if lead.status == 'NEW' %}
+                                    <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-star me-1"></i>New
+                                    </span>
+                                {% elif lead.status == 'ASSIGNED' %}
+                                    <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1"></i>Assigned
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(159, 168, 218, 0.15); color: #7f8c8d; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-circle me-1"></i>{{ lead.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lead.status == 'ASSIGNED' %}
+                                    <div style="font-weight: 600; color: #26d07c;"><i class="fas fa-user-check me-1"></i> Assigned</div>
+                                {% else %}
+                                    <a href="{% url 'gm:assign_lead' %}" class="btn btn-sm" style="background: #ffa500; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600;">
+                                        <i class="fas fa-user-plus me-1"></i> Assign Now
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a href="#" class="btn-sm-action btn-edit" title="Edit Lead">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="btn-sm-action btn-delete" title="Delete Lead">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div style="padding: 3rem 2rem; text-align: center;">
+                <div style="font-size: 4rem; color: #95a5a6; opacity: 0.3; margin-bottom: 1rem;">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h5 style="color: #7f8c8d; margin-bottom: 0.5rem; font-weight: 600;">No Leads Found</h5>
+                <p style="color: #95a5a6; margin-bottom: 1.5rem;">Start by uploading leads or adding them manually</p>
+                <a href="{% url 'gm:bulk_lead_upload' %}" class="btn btn-primary-custom" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;">
+                    <i class="fas fa-file-upload me-2"></i> Bulk Upload Leads
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: #2d9d78;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #1a3a4a;
+    }
+
+    .breadcrumb-item.active {
+        color: #95a5a6;
+    }
+
+    .input-group-text {
+        border: 2px solid #ecf0f1;
+        background: white !important;
+    }
+
+    .form-control:focus {
+        border-color: #446bab !important;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15) !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-sm-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+    }
+
+    .btn-edit:hover {
+        background: #446bab;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: rgba(255, 87, 87, 0.15);
+        color: #ff5757;
+    }
+
+    .btn-delete:hover {
+        background: #ff5757;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #446bab;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #95a5a6;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #ecf0f1;
+        color: #446bab;
+    }
+
+    .stat-change.positive {
+        color: #26d07c;
+    }
+
+    .stat-change.negative {
+        color: #ff5757;
+    }
+
+    .card-ghost {
+        background: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-custom {
+        border-collapse: collapse;
+    }
+
+    .table-custom tbody tr {
+        border-bottom: 1px solid #f8fafc;
+        transition: background-color 0.3s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    #searchInput:focus {
+        outline: none;
+    }
+</style>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#leadsTable tbody tr');
+        rows.forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+
+{% endblock %}

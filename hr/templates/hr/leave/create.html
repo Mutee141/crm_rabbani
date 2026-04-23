@@ -1,0 +1,143 @@
+
+{% extends "hr/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Add Leave{% endblock %}
+{% block page_title %}Add Leave{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card card-ghost p-5">
+            <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #ef6f61;">
+                <h3 style="color: #244f63; font-weight: 800; margin-bottom: 0.5rem;">
+                    <i class="fas fa-calendar-plus"></i> Request Leave
+                </h3>
+                <p style="color: #95a5a6; margin: 0;">Submit a new leave request with details and attachment if needed</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- FORM ERRORS -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong><i class="fas fa-exclamation-circle"></i> Error!</strong>
+                        <ul style="margin-bottom: 0; margin-top: 0.5rem;">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+
+                <!-- LEAVE DETAILS SECTION -->
+                <div style="margin-bottom: 2.5rem;">
+                    <h5 style="color: #244f63; font-weight: 700; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #ecf0f1;">
+                        <i class="fas fa-list"></i> Leave Details
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.employee|as_crispy_field }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.leave_type|as_crispy_field }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.date|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REASON & ATTACHMENT SECTION -->
+                <div style="margin-bottom: 2.5rem;">
+                    <h5 style="color: #244f63; font-weight: 700; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #ecf0f1;">
+                        <i class="fas fa-file-alt"></i> Additional Information
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            {{ form.reason|as_crispy_field }}
+                        </div>
+                        <div class="col-12">
+                            {{ form.attachment|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid #ecf0f1;">
+                    <a href="{% url 'hr:leave_list' %}" class="btn btn-outline-secondary" style="padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: 600;">
+    <i class="fas fa-times"></i> Cancel
+</a>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-check"></i> Submit Leave Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIDEBAR INFO -->
+    <div class="col-lg-4">
+        <div class="card card-ghost p-4" style="background: linear-gradient(135deg, rgba(36, 79, 99, 0.05) 0%, rgba(239, 111, 97, 0.05) 100%);">
+            <h6 style="color: #244f63; font-weight: 700; margin-bottom: 1rem;">
+                <i class="fas fa-info-circle"></i> Leave Types
+            </h6>
+            <ul style="padding-left: 1.5rem; color: #95a5a6; font-size: 0.9rem; line-height: 1.8; margin-bottom: 0;">
+                <li><strong style="color: #244f63;">Annual Leave:</strong> Planned vacation days</li>
+                <li><strong style="color: #244f63;">Sick Leave:</strong> Medical/health reasons</li>
+                <li><strong style="color: #244f63;">Casual Leave:</strong> Personal reasons</li>
+                <li><strong style="color: #244f63;">Emergency Leave:</strong> Urgent situations</li>
+            </ul>
+        </div>
+
+        <div class="card card-ghost p-4 mt-3" style="background: rgba(38, 208, 124, 0.05); border-left: 4px solid #26d07c;">
+            <h6 style="color: #26d07c; font-weight: 700; margin-bottom: 0.5rem;">
+                <i class="fas fa-lightbulb"></i> Tips
+            </h6>
+            <p style="color: #95a5a6; font-size: 0.9rem; margin: 0;">Provide clear reason and attach supporting documents like medical certificate for sick leave</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 0.75rem !important;
+        border: 2px solid #ecf0f1 !important;
+        padding: 0.75rem 1rem !important;
+        transition: all 0.3s ease !important;
+        font-size: 0.95rem !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #244f63 !important;
+        box-shadow: 0 0 0 0.2rem rgba(36, 79, 99, 0.15) !important;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #244f63;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        color: #95a5a6 !important;
+        font-size: 0.85rem !important;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .errorlist li {
+        color: #ff5757;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+</style>
+
+{% endblock %}

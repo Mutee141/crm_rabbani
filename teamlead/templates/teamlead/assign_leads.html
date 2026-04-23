@@ -1,0 +1,167 @@
+{% extends "teamlead/base.html" %}
+
+{% block title %}Team Lead - Assign Leads{% endblock %}
+{% block page_title %}Assign Leads to BDEs{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Assign Leads to BDEs</h3>
+                        <p style="margin: 0; opacity: 0.9;">Manage and assign leads to team members or keep them for yourself</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LEADS IN BUCKET CARD -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin: 0; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                <i class="fas fa-list me-2" style="color: #446bab;"></i>Leads in Your Bucket
+            </h5>
+            <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.5rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.85rem;">
+                {{ assignments.count }} Pending
+            </span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <!-- TABLE -->
+            <div class="table-responsive mb-4">
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="width: 50px; color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">
+                                <input type="checkbox" id="selectAll" class="form-check-input" style="width: 18px; height: 18px; cursor: pointer;">
+                            </th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Name</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Source</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Phone</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in assignments %}
+                        <tr style="transition: background-color 0.2s;">
+                            <td>
+                                <input type="checkbox" name="selected_leads" value="{{ item.lead.id }}" class="form-check-input" style="width: 18px; height: 18px; cursor: pointer;">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #446bab, #1a3a4a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                        {{ item.lead.name|slice:":1"|upper }}
+                                    </div>
+                                    <span style="font-weight: 700; color: #1a3a4a;">{{ item.lead.name }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                    {{ item.lead.source }}
+                                </span>
+                            </td>
+                            <td style="color: #1a3a4a; font-weight: 600;">{{ item.lead.phone }}</td>
+                            <td style="color: #95a5a6; font-size: 0.9rem;">{{ item.assigned_by.username }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div style="color: #95a5a6;">
+                                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                                    <p style="font-size: 1.1rem; margin: 0;">No leads currently in your bucket.</p>
+                                    <small style="color: #7f8c8d;">Add leads to get started</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ASSIGNMENT SECTION -->
+            <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.05); border-radius: 0.75rem; border: 1px solid #ecf0f1;">
+                <div class="row g-3">
+                    <!-- Assign To -->
+                    <div class="col-lg-5">
+                        <label style="font-size: 0.9rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                            <i class="fas fa-user-tag me-2" style="color: #446bab;"></i>Select BDE (Executive)
+                        </label>
+                        <select name="assign_to" class="form-control form-select" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1; color: #1a3a4a; font-weight: 600;" required>
+                            <option value="" disabled selected>Choose BDE...</option>
+                            <option value="self">📌 Keep for Self</option>
+                            {% for bde in bdes %}
+                                <option value="{{ bde.id }}">👤 {{ bde.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="col-lg-5">
+                        <label style="font-size: 0.9rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                            <i class="fas fa-comment-dots me-2" style="color: #446bab;"></i>Instructions/Remarks (Optional)
+                        </label>
+                        <input type="text" name="remarks" class="form-control" placeholder="Target date, specific notes..." style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1; color: #1a3a4a;">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="col-lg-2 d-flex align-items-end">
+                        <button type="submit" class="btn" style="width: 100%; background: linear-gradient(135deg, #446bab, #1a3a4a); color: white; border: none; border-radius: 0.75rem; padding: 0.75rem 2rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="fas fa-check-circle"></i> Assign Leads
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #446bab;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15);
+    }
+
+    .form-control::placeholder {
+        color: #95a5a6;
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    .form-check-input:checked {
+        background-color: #446bab;
+        border-color: #446bab;
+    }
+
+    .form-check-input:focus {
+        border-color: #446bab;
+        box-shadow: 0 0 0 0.25rem rgba(68, 107, 171, 0.25);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(68, 107, 171, 0.3);
+    }
+</style>
+
+<script>
+    document.getElementById('selectAll').onclick = function() {
+        var checkboxes = document.getElementsByName('selected_leads');
+        for (var checkbox of checkboxes) checkbox.checked = this.checked;
+    }
+</script>
+
+{% endblock %}

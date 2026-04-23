@@ -1,0 +1,24 @@
+{% extends "gm/base.html" %}
+{% block title %}Sale Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h4 class="fw-bold mb-4">Sale Details</h4>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <p><strong>Lead:</strong> {{ sale.lead.name }}</p>
+            <p><strong>Amount:</strong> PKR {{ sale.sale_amount }}</p>
+            <p><strong>Project:</strong> {{ sale.project }}</p>
+            <p><strong>Unit:</strong> {{ sale.unit }}</p>
+            <p><strong>Converted By:</strong> {{ sale.converted_by }}</p>
+            <p><strong>Supervised By:</strong> {{ sale.supervised_by }}</p>
+            <p><strong>Date:</strong> {{ sale.sale_date }}</p>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

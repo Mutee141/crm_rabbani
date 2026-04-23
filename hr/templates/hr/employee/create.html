@@ -1,0 +1,375 @@
+{% extends "hr/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Employee List{% endblock %}
+{% block page_title %}Employee Management{% endblock %}
+
+{% block content %}
+
+<div class="row mb-3">
+    <div class="col-12">
+        <h3 class="section-title mb-0">
+            <i class="fas fa-users"></i> Employee List
+        </h3>
+    </div>
+</div>
+
+<!-- SEARCH AND FILTER SECTION -->
+<div class="card card-ghost p-4 mb-4">
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search by name, email, or ID...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="departmentFilter" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="statusFilter" class="form-select">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <a href="{% url 'add_employee' %}" class="btn-primary-custom">
+                <i class="fas fa-user-plus"></i> Add New Employee
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- EMPLOYEE COUNT -->
+<div class="row mb-3">
+    <div class="col-12">
+        <span class="text-muted small">Total Employees: <strong id="totalCount">{{ employees.count }}</strong></span>
+    </div>
+</div>
+
+<!-- EMPLOYEE TABLE -->
+<div class="card card-ghost p-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0" id="employeeTable">
+            <thead class="table-header-bg">
+                <tr>
+                    <th style="width: 5%;"><i class="fas fa-image"></i></th>
+                    <th style="width: 15%;">Name</th>
+                    <th style="width: 15%;">Email</th>
+                    <th style="width: 12%;">Mobile</th>
+                    <th style="width: 12%;">Emp ID</th>
+                    <th style="width: 12%;">Designation</th>
+                    <th style="width: 12%;">Department</th>
+                    <th style="width: 8%;">Status</th>
+                    <th style="width: 9%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if employees %}
+                    {% for employee in employees %}
+                        <tr class="employee-row" data-dept="{{ employee.department.id }}" data-status="{{ employee.status }}">
+                            <td>
+                                {% if employee.profile_image %}
+                                    <img src="{{ employee.profile_image.url }}" alt="{{ employee.name }}" class="employee-avatar">
+                                {% else %}
+                                    <div class="employee-avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ employee.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ employee.father_name }}</small>
+                            </td>
+                            <td>{{ employee.email }}</td>
+                            <td>{{ employee.mobile_no }}</td>
+                            <td><span class="badge badge-emp-id">{{ employee.emp_id }}</span></td>
+                            <td>{{ employee.designation }}</td>
+                            <td>{{ employee.department }}</td>
+                            <td>
+                                {% if employee.status == 'active' %}
+                                    <span class="badge bg-success-light text-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger-light text-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'view_employee' employee.id %}" class="btn-action view" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'edit_employee' employee.id %}" class="btn-action edit" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_employee' employee.id %}" class="btn-action delete" title="Delete" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-inbox" style="font-size: 2rem; color: #bdc3c7; margin-bottom: 0.5rem;"></i>
+                            <p class="text-muted">No employees found</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .table-header-bg {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .table-header-bg th {
+        color: #2d7c3f;
+        font-weight: 700;
+        padding: 1rem 0.75rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #ecf0f1;
+        transition: background-color 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table tbody td {
+        padding: 1rem 0.75rem;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #2d7c3f;
+    }
+
+    .employee-avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e8f5e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2d7c3f;
+        font-weight: 600;
+        border: 2px solid #2d7c3f;
+    }
+
+    .badge-emp-id {
+        background-color: #e8f5e9;
+        color: #2d7c3f;
+        padding: 0.4rem 0.6rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .bg-success-light {
+        background-color: #e8f5e9;
+    }
+
+    .text-success {
+        color: #27ae60 !important;
+    }
+
+    .bg-danger-light {
+        background-color: #ffebee;
+    }
+
+    .text-danger {
+        color: #ff5757 !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-action.view {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .btn-action.view:hover {
+        background-color: #1976d2;
+        color: white;
+    }
+
+    .btn-action.edit {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .btn-action.edit:hover {
+        background-color: #f57c00;
+        color: white;
+    }
+
+    .btn-action.delete {
+        background-color: #ffebee;
+        color: #ff5757;
+    }
+
+    .btn-action.delete:hover {
+        background-color: #ff5757;
+        color: white;
+    }
+
+    .form-control, .form-select {
+        border-radius: 0.75rem !important;
+        border: 2px solid #ecf0f1 !important;
+        padding: 0.6rem 0.75rem !important;
+        transition: all 0.3s ease !important;
+        font-size: 0.9rem !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #2d7c3f !important;
+        box-shadow: 0 0 0 0.2rem rgba(45, 124, 63, 0.15) !important;
+    }
+
+    .input-group-text {
+        border: 2px solid #ecf0f1 !important;
+        border-radius: 0.75rem 0 0 0.75rem !important;
+        color: #2d7c3f;
+    }
+
+    .form-control {
+        border-radius: 0 0.75rem 0.75rem 0 !important;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #2d7c3f;
+        margin-bottom: 0;
+        padding-bottom: 0.4rem;
+        border-bottom: 3px solid #ef6f61;
+        display: inline-block;
+    }
+
+    .btn-primary-custom {
+        display: inline-block;
+        padding: 0.6rem 1.5rem;
+        background-color: #2d7c3f;
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #235c30;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(45, 124, 63, 0.3);
+    }
+
+    .card-ghost {
+        background-color: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        filterTable();
+    });
+
+    // Department filter
+    document.getElementById('departmentFilter').addEventListener('change', function() {
+        filterTable();
+    });
+
+    // Status filter
+    document.getElementById('statusFilter').addEventListener('change', function() {
+        filterTable();
+    });
+
+    function filterTable() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const deptValue = document.getElementById('departmentFilter').value;
+        const statusValue = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.employee-row');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let show = true;
+
+            // Search filter
+            if (searchValue) {
+                const text = row.textContent.toLowerCase();
+                show = text.includes(searchValue);
+            }
+
+            // Department filter
+            if (show && deptValue) {
+                show = row.dataset.dept === deptValue;
+            }
+
+            // Status filter
+            if (show && statusValue) {
+                show = row.dataset.status === statusValue;
+            }
+
+            row.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+
+        document.getElementById('totalCount').textContent = visibleCount;
+    }
+</script>
+
+{% endblock %}

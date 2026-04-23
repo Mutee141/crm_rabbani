@@ -1,0 +1,600 @@
+{% extends "gm/base.html" %}
+
+{% block title %}Lead Conversion Report | GM{% endblock %}
+{% block page_title %}Lead Conversion Report{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Banner */
+    .report-banner {
+        background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%);
+        color: white;
+        border: none;
+        border-top: 4px solid #ffa500;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .report-banner h4 {
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .report-banner p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .header-icon-box {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    /* Filter Card */
+    .filter-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+    }
+
+    /* Form Styling */
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-label i {
+        color: #446bab;
+    }
+
+    .form-control {
+        border-radius: 0.75rem;
+        border: 2px solid #ecf0f1;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+        border-color: #2d9d78;
+        box-shadow: 0 0 0 3px rgba(45, 157, 120, 0.1);
+        outline: none;
+    }
+
+    /* Buttons */
+    .btn-filter {
+        background: linear-gradient(135deg, #2d9d78 0%, #1a6b52 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(45, 157, 120, 0.3);
+        color: white;
+    }
+
+    .btn-reset {
+        border: 2px solid #ecf0f1;
+        color: #95a5a6;
+        background: white;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-reset:hover {
+        background: #f5f6f8;
+        border-color: #2d9d78;
+        color: #2d9d78;
+    }
+
+    .btn-download {
+        background: linear-gradient(135deg, #2d9d78 0%, #1a6b52 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(45, 157, 120, 0.3);
+        color: white;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.blue {
+        background: rgba(68, 107, 171, 0.1);
+        color: #446bab;
+    }
+
+    .stat-icon.green {
+        background: rgba(45, 157, 120, 0.1);
+        color: #2d9d78;
+    }
+
+    .stat-icon.orange {
+        background: rgba(255, 165, 0, 0.1);
+        color: #ffa500;
+    }
+
+    .stat-icon.gray {
+        background: rgba(149, 165, 166, 0.1);
+        color: #95a5a6;
+    }
+
+    /* Progress Bar */
+    .progress {
+        background-color: rgba(68, 107, 171, 0.1) !important;
+        border-radius: 10px;
+        height: 6px;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #2d9d78, #1a6b52) !important;
+        border-radius: 10px;
+    }
+
+    /* Small Text Colors */
+    .text-success {
+        color: #2d9d78 !important;
+    }
+
+    .text-muted {
+        color: #95a5a6 !important;
+    }
+
+    /* Table Card */
+    .table-card {
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+        padding: 1.5rem;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .table-header h5 {
+        font-weight: 800;
+        color: #1a3a4a;
+        margin: 0;
+    }
+
+    .table-header i {
+        color: #446bab;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: white;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .table thead th {
+        color: #1a3a4a;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #ecf0f1;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        border: none;
+        vertical-align: middle;
+    }
+
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        background: rgba(68, 107, 171, 0.1);
+        color: #446bab;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        flex-shrink: 0;
+    }
+
+    /* Role Badges */
+    .badge-role {
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .badge-gm {
+        background: rgba(24, 47, 58, 0.15);
+        color: #1a3a4a;
+    }
+
+    .badge-manager {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+    }
+
+    .badge-teamlead {
+        background: rgba(255, 165, 0, 0.15);
+        color: #ffa500;
+    }
+
+    .badge-bde {
+        background: rgba(149, 165, 166, 0.15);
+        color: #95a5a6;
+    }
+
+    /* Conversion Rate Colors */
+    .rate-high {
+        color: #2d9d78;
+        font-weight: 700;
+    }
+
+    .rate-medium {
+        color: #446bab;
+        font-weight: 700;
+    }
+
+    .rate-low {
+        color: #ff5757;
+        font-weight: 700;
+    }
+
+    .progress-bar-high {
+        background: linear-gradient(90deg, #2d9d78, #1a6b52) !important;
+    }
+
+    .progress-bar-medium {
+        background: linear-gradient(90deg, #446bab, #265268ff) !important;
+    }
+
+    .progress-bar-low {
+        background: linear-gradient(90deg, #ff5757, #ff3333) !important;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .empty-state i {
+        color: rgba(149, 165, 166, 0.3);
+    }
+
+    .empty-state h5 {
+        color: #1a3a4a;
+        font-weight: 700;
+        margin: 1rem 0 0.5rem;
+    }
+
+    .empty-state p {
+        color: #95a5a6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .report-banner {
+            padding: 1.5rem;
+        }
+
+        .report-banner .d-flex {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-download {
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .filter-card .col-md-4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .table {
+            font-size: 0.85rem;
+        }
+
+        .table thead th {
+            padding: 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 0.75rem;
+        }
+    }
+</style>
+
+<!-- Banner -->
+<div class="card report-banner">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="header-icon-box me-3">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h4>Lead Ownership & Conversion Report</h4>
+                <p>Track lead conversion performance across all team members</p>
+            </div>
+        </div>
+        <a href="#" class="btn btn-download">
+            <i class="fas fa-file-excel me-2"></i> Download Excel
+        </a>
+    </div>
+</div>
+
+<!-- Filter Card -->
+<div class="filter-card">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">
+                <i class="fas fa-calendar-alt me-1"></i> Start Date
+            </label>
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">
+                <i class="fas fa-calendar-alt me-1"></i> End Date
+            </label>
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-filter flex-grow-1">
+                <i class="fas fa-filter me-1"></i> Apply Filter
+            </button>
+            <a href="{% url 'gm:lead_conversion_report' %}" class="btn btn-reset">
+                <i class="fas fa-undo"></i> Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Statistics Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Leads</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_leads }}</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-circle me-1"></i> All received
+                    </div>
+                </div>
+                <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Converted</div>
+                    <div class="stat-value" style="color: #2d9d78;">{{ converted_leads }}</div>
+                    <div class="small text-success">
+                        <i class="fas fa-arrow-up me-1"></i> Successful
+                    </div>
+                </div>
+                <div class="stat-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Conversion Rate</div>
+                    <div class="stat-value" style="color: #446bab;">{{ conversion_rate }}%</div>
+                    <div class="mt-2">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar" style="width: {{ conversion_rate }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-icon orange">
+                    <i class="fas fa-percentage"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Active Employees</div>
+                    <div class="stat-value" style="color: #95a5a6;">{{ active_employees }}</div>
+                    <div class="small text-muted">
+                        <i class="fas fa-user-tie me-1"></i> Team size
+                    </div>
+                </div>
+                <div class="stat-icon gray">
+                    <i class="fas fa-id-badge"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Table -->
+<div class="table-card">
+    <div class="table-header">
+        <h5>
+            <i class="fas fa-user-check me-2"></i>Individual Employee Performance
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="ps-4" style="width: 50px;">#</th>
+                    <th>Employee Details</th>
+                    <th>Role</th>
+                    <th>Total Assigned</th>
+                    <th>Converted</th>
+                    <th class="text-end pe-4">Success Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in report_data %}
+                <tr>
+                    <td class="ps-4 fw-bold text-muted">{{ forloop.counter }}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3">{{ item.initial }}</div>
+                            <div>
+                                <div class="fw-bold text-dark">{{ item.name }}</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">System User</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if item.role == 'GM' %}
+                            <span class="badge-role badge-gm">GM</span>
+                        {% elif item.role == 'MANAGER' %}
+                            <span class="badge-role badge-manager">MANAGER</span>
+                        {% elif item.role == 'TEAM_LEAD' %}
+                            <span class="badge-role badge-teamlead">TEAM LEAD</span>
+                        {% elif item.role == 'BDE' %}
+                            <span class="badge-role badge-bde">BDE</span>
+                        {% else %}
+                            <span class="badge-role badge-bde">{{ item.role }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ item.total_leads }}</div>
+                        <div class="small text-muted" style="font-size: 0.7rem;">Assigned leads</div>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-success">{{ item.converted_leads }}</div>
+                        <div class="small text-muted" style="font-size: 0.7rem;">Verified sales</div>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div class="fw-bold {% if item.conversion_rate > 50 %}rate-high{% elif item.conversion_rate > 20 %}rate-medium{% else %}rate-low{% endif %}">
+                            {{ item.conversion_rate }}%
+                        </div>
+                        <div class="progress ms-auto" style="height: 4px; width: 60px; background: rgba(0,0,0,0.05);">
+                            <div class="progress-bar {% if item.conversion_rate > 50 %}progress-bar-high{% elif item.conversion_rate > 20 %}progress-bar-medium{% else %}progress-bar-low{% endif %}" 
+                                 style="width: {{ item.conversion_rate }}%;"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-user-slash fa-3x mb-3"></i>
+                            <h5>No Employee Data Found</h5>
+                            <p>Make sure employees are marked as "Active" in the HR Dashboard.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

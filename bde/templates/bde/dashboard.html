@@ -1,0 +1,181 @@
+{% extends "bde/base.html" %}
+
+{% block title %}BDE Dashboard{% endblock %}
+{% block page_title %}BDE Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- WELCOME BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">👋 Hello, {{ request.user.username }}!</h3>
+                <p style="margin: 0; opacity: 0.9;">Track your leads and achieve your targets</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.5rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.9rem;">
+                    <i class="fas fa-star me-1"></i> Keep Going
+                </span>
+                <div style="font-size: 3rem; opacity: 0.2;">💼</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS GRID -->
+<div class="row g-3 mb-4">
+    <!-- My Total Leads -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">My Total Leads</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_leads }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-info-circle"></i> Assigned to me
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversions -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Conversions</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ conversions }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> Success rate
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Revenue -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">My Revenue</div>
+                    <div class="stat-value" style="color: #ffa500; font-size: 1.8rem;">${{ revenue }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-coins"></i> Total earnings
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Rate -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Conversion Rate</div>
+                    <div class="stat-value" style="color: #ffa500;">
+                        {% if total_leads > 0 %}
+                            {{ conversions|add:0 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="stat-change">
+                        <i class="fas fa-percentage"></i> Performance
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(255, 165, 0, 0.1); color: #ffa500;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-bolt me-2" style="color: #446bab;"></i>Quick Actions
+                </h5>
+                
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'bde:assigned_leads' %}" class="btn" style="background: linear-gradient(135deg, #446bab, #1a3a4a); color: white; border: none; border-radius: 0.75rem; padding: 0.75rem 2rem; font-weight: 600; transition: all 0.3s ease;">
+                        <i class="fas fa-user-tag me-2"></i> View Assigned Leads
+                    </a>
+                    <a href="{% url 'bde:self_feedback' %}" class="btn" style="background: rgba(68, 107, 171, 0.15); color: #446bab; border: 2px solid #ecf0f1; border-radius: 0.75rem; padding: 0.75rem 2rem; font-weight: 600; transition: all 0.3s ease;">
+                        <i class="fas fa-comment-dots me-2"></i> Self Feedback
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PERFORMANCE SUMMARY -->
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-chart-line me-2" style="color: #446bab;"></i>Performance Summary
+                </h5>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Total Leads</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #446bab;">{{ total_leads }}</div>
+                            <div style="font-size: 0.85rem; color: #446bab; margin-top: 0.5rem;">
+                                <i class="fas fa-clipboard-list"></i> Currently assigned
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(255, 165, 0, 0.08); border-radius: 0.75rem; border-left: 4px solid #ffa500;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Converted</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ffa500;">{{ conversions }}</div>
+                            <div style="font-size: 0.85rem; color: #ffa500; margin-top: 0.5rem;">
+                                <i class="fas fa-check"></i> Successful sales
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(38, 208, 124, 0.08); border-radius: 0.75rem; border-left: 4px solid #26d07c;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">My Revenue</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #26d07c;">${{ revenue }}</div>
+                            <div style="font-size: 0.85rem; color: #26d07c; margin-top: 0.5rem;">
+                                <i class="fas fa-coins"></i> Total earnings
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+{% endblock %}

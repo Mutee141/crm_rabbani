@@ -1,0 +1,170 @@
+{% extends "teamlead/base.html" %}
+
+{% block title %}Team Lead - Self Feedback{% endblock %}
+{% block page_title %}Self Assigned Lead Feedback{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Self Assigned Lead Feedback</h3>
+                        <p style="margin: 0; opacity: 0.9;">Provide feedback and updates for leads you've assigned to yourself</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PENDING FEEDBACK STAT -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-ghost" style="text-align: center; padding: 2.5rem;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="width: 70px; height: 70px; border-radius: 1rem; background: linear-gradient(135deg, #ffa500, #ff8c00); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; box-shadow: 0 8px 24px rgba(255, 165, 0, 0.2);">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 2.5rem; font-weight: 800; color: #ffa500; margin: 0;">{{ pending_count|default:"0" }}</h2>
+                    <p style="color: #95a5a6; margin: 0.5rem 0; font-size: 1rem;">Leads Pending Feedback</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FEEDBACK TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-list-ul me-2" style="color: #446bab;"></i>Self Assigned Leads
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle mb-0">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead ID</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Name</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Contact Information</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in leads %}
+                    <tr style="transition: background-color 0.2s;">
+                        <td>
+                            <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                #{{ assignment.lead.id }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #1a3a4a;">{{ assignment.lead.full_name }}</div>
+                        </td>
+                        <td>
+                            <div style="color: #1a3a4a; font-weight: 600;">{{ assignment.lead.phone }}</div>
+                            <small style="color: #95a5a6;">
+                                <i class="fas fa-envelope me-1"></i>{{ assignment.lead.email|default:"N/A" }}
+                            </small>
+                        </td>
+                        <td>
+                            <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                {{ assignment.lead.status }}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn-feedback" title="Add Feedback" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ assignment.id }}">
+                                <i class="fas fa-plus-circle me-1"></i>Add Feedback
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div style="color: #95a5a6;">
+                                <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; color: #26d07c; opacity: 0.3; display: block;"></i>
+                                <h5 style="color: #1a3a4a; font-weight: 700; margin-bottom: 0.5rem;">All Caught Up!</h5>
+                                <p style="margin: 0; color: #7f8c8d;">No self-assigned leads pending feedback at the moment</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- FEEDBACK SUMMARY -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1rem; font-weight: 700; color: #1a3a4a; margin-bottom: 1rem;">
+                    <i class="fas fa-chart-bar me-2" style="color: #446bab;"></i>Feedback Summary
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Pending Feedback</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #446bab;">{{ pending_count|default:"0" }}</div>
+                            <small style="color: #7f8c8d;">Leads awaiting feedback</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(38, 208, 124, 0.08); border-radius: 0.75rem; border-left: 4px solid #26d07c;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Feedback Given</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #26d07c;">0</div>
+                            <small style="color: #7f8c8d;">Completed feedback</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(255, 165, 0, 0.08); border-radius: 0.75rem; border-left: 4px solid #ffa500;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Completion Rate</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ffa500;">0%</div>
+                            <small style="color: #7f8c8d;">Of assigned leads</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-feedback {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-feedback:hover {
+        background: #446bab;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+</style>
+
+{% endblock %}

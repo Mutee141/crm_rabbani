@@ -1,0 +1,337 @@
+{% extends "gm/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Bulk Upload Leads{% endblock %}
+{% block page_title %}Bulk Lead Upload{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'gm:dashboard' %}" class="text-decoration-none" style="color: #2d9d78;">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'gm:lead_list' %}" class="text-decoration-none" style="color: #2d9d78;">Leads</a></li>
+        <li class="breadcrumb-item active" style="color: #95a5a6;">Bulk Upload</li>
+    </ol>
+</nav>
+
+<!-- WELCOME BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">📤 Upload Leads</h3>
+                <p style="margin: 0; opacity: 0.9;">Import multiple leads using CSV or Excel</p>
+            </div>
+            <div style="font-size: 3rem; opacity: 0.2;">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+        <div class="card card-ghost">
+            <div class="card-body">
+                
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-file-import me-2"></i>Import Leads
+                </h5>
+
+                <!-- ALERTS -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' or message.tags == 'danger' %}danger{% else %}info{% endif %} alert-dismissible fade show" role="alert" style="border-left: 4px solid {% if message.tags == 'success' %}#26d07c{% elif message.tags == 'error' or message.tags == 'danger' %}#ff5757{% else %}#446bab{% endif %}; border: none;">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- FILE INPUT -->
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ form.file.id_for_label }}" style="font-weight: 600; color: #1a3a4a;">
+                            <i class="fas fa-file-upload me-1" style="color: #446bab;"></i>
+                            Select File <span style="color: #ff5757;">*</span>
+                        </label>
+                        
+                        <div class="position-relative">
+                            <input 
+                                type="file" 
+                                name="{{ form.file.name }}" 
+                                id="{{ form.file.id_for_label }}"
+                                class="form-control form-control-lg"
+                                accept=".csv,.xlsx,.xls"
+                                required
+                                onchange="updateFileName(this)"
+                                style="border: 2px solid #ecf0f1;"
+                            >
+                        </div>
+
+                        {% if form.file.errors %}
+                            <small class="text-danger d-block mt-2" style="color: #ff5757;">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                {% for error in form.file.errors %}{{ error }}{% endfor %}
+                            </small>
+                        {% endif %}
+
+                        <small class="text-muted d-block mt-2" style="color: #95a5a6;">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Supported formats: <strong>CSV (.csv)</strong>, <strong>Excel (.xlsx, .xls)</strong> | Max file size: 5MB
+                        </small>
+                    </div>
+
+                    <!-- REQUIRED COLUMNS INFO -->
+                    <div style="border: none; background: rgba(68, 107, 171, 0.08); border-left: 4px solid #446bab; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+                        <div class="d-flex align-items-start gap-3">
+                            <div style="font-size: 1.3rem;">ℹ️</div>
+                            <div>
+                                <strong class="d-block mb-2" style="color: #1a3a4a;">Required Columns:</strong>
+                                <ul class="mb-0 small" style="color: #446bab; padding-left: 1.25rem;">
+                                    <li><code style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 2px 6px; border-radius: 4px; font-weight: 600;">name</code> - Full name of the lead</li>
+                                    <li><code style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 2px 6px; border-radius: 4px; font-weight: 600;">phone</code> - Contact number (required & unique)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROCESSING NOTES -->
+                    <div style="border: none; background: rgba(255, 165, 0, 0.08); border-left: 4px solid #ffa500; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+                        <div class="d-flex align-items-start gap-3">
+                            <div style="font-size: 1.3rem;">⚡</div>
+                            <div>
+                                <strong class="d-block mb-2" style="color: #1a3a4a;">Processing Notes:</strong>
+                                <ul class="mb-0 small" style="color: #7f8c8d; padding-left: 1.25rem;">
+                                    <li>Empty rows will be automatically skipped</li>
+                                    <li>Duplicate phone numbers will not be imported</li>
+                                    <li>Invalid entries will be logged for review</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="d-flex gap-2 justify-content-end mt-5">
+                        <a href="{% url 'gm:lead_list' %}" class="btn" style="background: #ecf0f1; color: #7f8c8d; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600;">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Leads
+                        </a>
+                        <button type="submit" class="btn btn-primary-custom" id="uploadBtn" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; color: white; font-weight: 600;">
+                            <i class="fas fa-cloud-upload-alt me-1"></i> Upload Leads
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR HELP SECTION -->
+    <div class="col-lg-4">
+        
+        <!-- DOWNLOAD SAMPLE -->
+        <div class="card card-ghost mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div style="font-size: 1.3rem; color: #446bab;">📥</div>
+                    <h6 class="mb-0" style="color: #1a3a4a; font-weight: 700;">Sample File</h6>
+                </div>
+                <p class="text-muted small mb-3" style="color: #95a5a6;">Download a template to see the correct format</p>
+                <a href="#" class="btn w-100" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; color: white; font-weight: 600; border-radius: 0.5rem;" download>
+                    <i class="fas fa-download me-1"></i> Download CSV Template
+                </a>
+            </div>
+        </div>
+
+        <!-- COLUMN GUIDE -->
+        <div class="card card-ghost mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div style="font-size: 1.3rem; color: #446bab;">📋</div>
+                    <h6 class="mb-0" style="color: #1a3a4a; font-weight: 700;">Column Guide</h6>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-sm" style="border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #ecf0f1;">
+                                <th style="font-weight: 700; color: #1a3a4a; padding: 0.75rem 0.5rem;">Column</th>
+                                <th style="font-weight: 700; color: #1a3a4a; padding: 0.75rem 0.5rem; text-align: center;">Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ecf0f1;">
+                                <td style="padding: 0.75rem 0.5rem;"><code style="background: #f5f7fa; color: #446bab; padding: 2px 6px; border-radius: 4px; font-weight: 600;">name</code></td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center;">
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">Yes</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 0.5rem;"><code style="background: #f5f7fa; color: #446bab; padding: 2px 6px; border-radius: 4px; font-weight: 600;">phone</code></td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center;">
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">Yes</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILE GUIDELINES -->
+        <div class="card card-ghost">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div style="font-size: 1.3rem; color: #26d07c;">✅</div>
+                    <h6 class="mb-0" style="color: #1a3a4a; font-weight: 700;">Guidelines</h6>
+                </div>
+                <ul class="small mb-0" style="color: #95a5a6; padding-left: 1.25rem;">
+                    <li class="mb-2">Maximum 5MB file size</li>
+                    <li class="mb-2">No special characters in phone</li>
+                    <li class="mb-2">Keep headers exact (case-sensitive)</li>
+                    <li>One lead per row</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= CUSTOM STYLES ================= -->
+<style>
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: #2d9d78;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #1a3a4a;
+    }
+
+    .breadcrumb-item.active {
+        color: #95a5a6;
+    }
+
+    .card-ghost {
+        background: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-control-lg {
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        border: 2px solid #ecf0f1;
+        font-size: 0.95rem;
+        color: #1a3a4a;
+    }
+
+    .form-control-lg:focus {
+        border-color: #446bab !important;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15) !important;
+    }
+
+    .form-label {
+        color: #1a3a4a;
+        font-weight: 600;
+    }
+
+    code {
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+    }
+
+    .alert {
+        border-radius: 0.75rem;
+        margin-bottom: 1.5rem;
+        background: transparent;
+    }
+
+    .alert-success {
+        background: rgba(38, 208, 124, 0.08);
+        color: #26d07c;
+        border-left: 4px solid #26d07c;
+    }
+
+    .alert-danger {
+        background: rgba(255, 87, 87, 0.08);
+        color: #ff5757;
+        border-left: 4px solid #ff5757;
+    }
+
+    .alert-info {
+        background: rgba(68, 107, 171, 0.08);
+        color: #446bab;
+        border-left: 4px solid #446bab;
+    }
+
+    input[type="file"]::file-selector-button {
+        background: #446bab;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+        background: #1a3a4a;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary-custom {
+        border-radius: 0.5rem;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(68, 107, 171, 0.3);
+    }
+</style>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+    function updateFileName(input) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2);
+            console.log(`Selected: ${fileName} (${fileSize} MB)`);
+        }
+    }
+
+    const uploadForm = document.querySelector('form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('uploadBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
+        });
+    }
+</script>
+
+{% endblock %}

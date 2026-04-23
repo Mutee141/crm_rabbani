@@ -1,0 +1,175 @@
+{% extends "hr/base.html" %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="mb-4">
+    <h2 class="section-title">
+        <i class="fas fa-clock"></i> Attendance Record
+    </h2>
+    <p style="color: #95a5a6; margin-top: 0.5rem;">Add or update employee attendance information</p>
+</div>
+
+<!-- FORM CARD -->
+<div class="card card-ghost p-5" style="max-width: 900px;">
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- EMPLOYEE SECTION -->
+        <div class="mb-4">
+            <h5 style="font-weight: 700; color: #244f63; margin-bottom: 1.5rem; font-size: 1.1rem;">
+                <i class="fas fa-user"></i> Employee Details
+            </h5>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-id-badge"></i> Employee
+                    </label>
+                    {{ form.employee }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-briefcase"></i> Designation
+                    </label>
+                    <input type="text" class="form-control" placeholder="Auto-filled" disabled style="background-color: #f8f9fa;">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-building"></i> Department
+                    </label>
+                    <input type="text" class="form-control" placeholder="Auto-filled" disabled style="background-color: #f8f9fa;">
+                </div>
+            </div>
+        </div>
+
+        <!-- ATTENDANCE SECTION -->
+        <hr style="margin: 2rem 0; border-color: #ecf0f1;">
+
+        <div class="mb-4">
+            <h5 style="font-weight: 700; color: #244f63; margin-bottom: 1.5rem; font-size: 1.1rem;">
+                <i class="fas fa-calendar-check"></i> Attendance Information
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-calendar"></i> Date
+                    </label>
+                    {{ form.date }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-badge-check"></i> Status
+                    </label>
+                    {{ form.status }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-sign-in-alt"></i> Check In Time
+                    </label>
+                    {{ form.check_in }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-sign-out-alt"></i> Check Out Time
+                    </label>
+                    {{ form.check_out }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">
+                        <i class="fas fa-sticky-note"></i> Remarks
+                    </label>
+                    {{ form.remarks }}
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <hr style="margin: 2rem 0; border-color: #ecf0f1;">
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary-custom">
+                <i class="fas fa-save"></i> Save Record
+            </button>
+            <a href="{% url 'attendance_latest' %}" class="btn btn-secondary" style="background: #ecf0f1; color: #244f63; border: none; padding: 0.75rem 2rem; border-radius: 0.75rem; font-weight: 600; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- FORM STYLING -->
+<style>
+    .form-label {
+        font-weight: 600;
+        color: #244f63;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label i {
+        color: #ef6f61;
+        font-size: 0.95rem;
+    }
+
+    .form-control, 
+    .form-select {
+        border-radius: 0.75rem;
+        border: 2px solid #ecf0f1;
+        padding: 0.85rem 1rem;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        background-color: white;
+    }
+
+    .form-control:focus, 
+    .form-select:focus {
+        border-color: #2d7c3f;
+        box-shadow: 0 0 0 0.2rem rgba(45, 124, 63, 0.15);
+        background-color: white;
+    }
+
+    .form-control::placeholder {
+        color: #95a5a6;
+    }
+
+    .btn-secondary {
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: #d9dce0 !important;
+        color: #244f63 !important;
+    }
+
+    .row.g-3 {
+        display: grid;
+        gap: 1.5rem;
+        grid-auto-flow: row;
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            padding: 1.5rem !important;
+        }
+
+        .row.g-3 {
+            gap: 1rem;
+        }
+
+        h5 {
+            font-size: 1rem !important;
+        }
+    }
+</style>
+
+{% endblock %}

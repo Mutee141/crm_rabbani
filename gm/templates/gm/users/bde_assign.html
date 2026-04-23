@@ -1,0 +1,322 @@
+{% extends "gm/base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'gm:dashboard' %}" class="text-decoration-none" style="color: #2d9d78;">Dashboard</a></li>
+            <li class="breadcrumb-item active" style="color: #95a5a6;">Team Lead → BDE Assign</li>
+        </ol>
+    </nav>
+
+    <!-- WELCOME BANNER -->
+    <div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 style="font-weight: 800; margin-bottom: 0.5rem;">🎯 Team Lead → BDE Assignment</h3>
+                    <p style="margin: 0; opacity: 0.9;">Assign Business Development Executives to Team Leads</p>
+                </div>
+                <div style="font-size: 3rem; opacity: 0.2;">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Total Team Leads</div>
+                        <div class="stat-value" style="color: #446bab;">{{ team_leads|length }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> Active Team Leads
+                        </div>
+                    </div>
+                    <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-flex-start">
+                    <div>
+                        <div class="stat-label">Total BDEs</div>
+                        <div class="stat-value" style="color: #26d07c;">{{ bdes|length }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check-circle"></i> Active BDEs
+                        </div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPLOYMENT VIEW CARD -->
+    <div class="card card-ghost">
+        <!-- Card Header -->
+        <div class="card-body" style="padding: 0;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid #ecf0f1; display: flex; justify-content: space-between; align-items: center;">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin: 0;">
+                    <i class="fas fa-users-cog me-2" style="color: #446bab;"></i>Deployment View
+                </h5>
+                <div class="input-group" style="max-width: 300px;">
+                    <span class="input-group-text" style="background: white; border-right: none; border: 2px solid #ecf0f1;">
+                        <i class="fas fa-search" style="color: #95a5a6;"></i>
+                    </span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Quick search..." style="border-left: none; border: 2px solid #ecf0f1;">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0" id="assignmentTable">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">#</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Team Lead</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned BDEs</th>
+                            <th class="text-end" style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tl in team_leads %}
+                        <tr>
+                            <td style="font-weight: 600; color: #446bab;">{{ forloop.counter }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                        {{ tl.hr_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #1a3a4a;">{{ tl.hr_name }}</div>
+                                        <small style="color: #95a5a6;">{{ tl.emp_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if tl.assigned_count > 0 %}
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                        {% for bde in tl.assigned_bdes %}
+                                        <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                            <i class="fas fa-user-tag me-1"></i>{{ bde.hr_name }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span style="color: #95a5a6; font-style: italic;"><i class="fas fa-exclamation-triangle me-1"></i>Empty Team</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm" 
+                                        style="color: #446bab; border: 2px solid #446bab; background: white; border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600;"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#assignModal{{ tl.id }}">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div style="font-size: 4rem; color: #95a5a6; opacity: 0.3; margin-bottom: 1rem;">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <h5 style="color: #7f8c8d; font-weight: 600;">No Team Leads Found</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+{% for tl in team_leads %}
+<div class="modal fade" id="assignModal{{ tl.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form method="POST" class="modal-content" style="border: none; border-radius: 1.25rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);">
+            {% csrf_token %}
+            <input type="hidden" name="tl_id" value="{{ tl.id }}">
+            
+            <!-- Modal Header -->
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-radius: 1.25rem 1.25rem 0 0;">
+                <div>
+                    <h5 class="modal-title" style="font-weight: 800; font-size: 1.3rem; margin: 0;">
+                        <i class="fas fa-users me-2"></i>Managing: {{ tl.hr_name }}
+                    </h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body" style="padding: 1.5rem;">
+                <label class="form-label" style="font-weight: 800; color: #1a3a4a; margin-bottom: 1rem;">Select BDEs to Assign</label>
+                <div style="border: 1px solid #ecf0f1; border-radius: 0.5rem; overflow-y: auto; background-color: #f8fafc;">
+                    {% for bde in bdes %}
+                    <div style="padding: 1rem; border-bottom: 1px solid #ecf0f1; transition: all 0.3s ease;" class="hover-bde">
+                        <div class="form-check" style="margin: 0;">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="bde_ids" 
+                                   value="{{ bde.id }}" 
+                                   id="bde_{{ bde.id }}_{{ tl.id }}"
+                                   {% if bde.reporting_to_id == tl.id %}checked{% endif %}>
+                            <label class="form-check-label d-flex justify-content-between align-items-center w-100" for="bde_{{ bde.id }}_{{ tl.id }}" style="cursor: pointer; margin: 0;">
+                                <span style="font-weight: 600; color: #1a3a4a;">{{ bde.hr_name }}</span>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.4rem; font-size: 0.75rem; font-weight: 600;">{{ bde.emp_id }}</span>
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer" style="border-top: 1px solid #ecf0f1; padding: 1.5rem; background: #f8fafc; border-radius: 0 0 1.25rem 1.25rem;">
+                <button type="button" class="btn" style="background: #ecf0f1; color: #7f8c8d; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600;" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary-custom" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; color: white; font-weight: 600; width: 100%;">Update Team</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: #2d9d78;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #1a3a4a;
+    }
+
+    .breadcrumb-item.active {
+        color: #95a5a6;
+    }
+
+    .card-ghost {
+        background: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #95a5a6;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #ecf0f1;
+        color: #446bab;
+    }
+
+    .stat-change.positive {
+        color: #26d07c;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.success {
+        background: rgba(38, 208, 124, 0.1);
+        color: #26d07c;
+    }
+
+    .table-custom {
+        border-collapse: collapse;
+    }
+
+    .table-custom tbody tr {
+        border-bottom: 1px solid #f8fafc;
+        transition: background-color 0.3s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .input-group-text {
+        border: 2px solid #ecf0f1;
+        background: white !important;
+    }
+
+    .hover-bde {
+        cursor: pointer;
+    }
+
+    .hover-bde:hover {
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-check-input:checked {
+        background-color: #446bab;
+        border-color: #446bab;
+    }
+</style>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#assignmentTable tbody tr');
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "hr/base.html" %}
+{% block page_title %}Confirm delete{% endblock %}
+{% block content %}
+<div class="card card-ghost p-3">
+  <p>Are you sure you want to delete <strong>{{ emp.name }}</strong> ({{ emp.emp_id }})?</p>
+  <form method="post">{% csrf_token %}
+    <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
+    <button class="btn btn-danger">Delete</button>
+  </form>
+</div>
+{% endblock %}

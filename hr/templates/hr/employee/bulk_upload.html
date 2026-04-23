@@ -1,0 +1,36 @@
+{% extends "hr/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h3 class="mb-3">Bulk Upload Employees</h3>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label class="form-label">Upload Excel File (.xls or .xlsx)</label>
+                <input type="file" name="file" class="form-control mb-3" accept=".xls,.xlsx" required>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Upload History</h4>
+    <table class="table table-bordered mt-2">
+        <tr>
+            <th>File</th>
+            <th>Uploaded At</th>
+        </tr>
+
+        {% for u in uploads %}
+        <tr>
+            <td>{{ u.file.name }}</td>
+            <td>{{ u.uploaded_at }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No uploads yet.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

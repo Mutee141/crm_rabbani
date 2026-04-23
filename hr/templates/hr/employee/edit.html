@@ -1,0 +1,78 @@
+{% extends "hr/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-success-dark m-0">
+                    <i class="fas fa-user-edit me-2"></i>Edit Employee Profile
+                </h3>
+                <a href="{% url 'hr:employee_list' %}" class="btn btn-outline-secondary shadow-sm bg-white">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Directory
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-success-dark text-white p-3 rounded-top-4">
+                    <h5 class="mb-0 m-2">Updating Records for: <span class="fw-bold">{{ emp.name }}</span></h5>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card-body p-4">
+                        <div class="form-section mb-4">
+                            <h6 class="section-label"><i class="fas fa-id-card me-2"></i>Personal Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6"><label>Full Name</label>{{ form.name }}</div>
+                                <div class="col-md-6"><label>Father Name</label>{{ form.father_name }}</div>
+                                <div class="col-md-4"><label>CNIC No</label>{{ form.cnic_no }}</div>
+                                <div class="col-md-4"><label>Date of Birth</label>{{ form.date_of_birth }}</div>
+                                <div class="col-md-4"><label>Profile Image</label>{{ form.profile_image }}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section mb-4">
+                            <h6 class="section-label"><i class="fas fa-phone-alt me-2"></i>Contact Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6"><label>Email Address</label>{{ form.email }}</div>
+                                <div class="col-md-3"><label>Mobile No</label>{{ form.mobile_no }}</div>
+                                <div class="col-md-3"><label>WhatsApp</label>{{ form.whatsapp_no }}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h6 class="section-label"><i class="fas fa-briefcase me-2"></i>Employment Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4"><label>Emp ID</label>{{ form.emp_id }}</div>
+                                <div class="col-md-4"><label>Joining Date</label>{{ form.date_of_joining }}</div>
+                                <div class="col-md-4"><label>Status</label>{{ form.status }}</div>
+                                <div class="col-md-6"><label>Designation</label>{{ form.designation }}</div>
+                                <div class="col-md-6"><label>Department</label>{{ form.department }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light border-0 p-4 text-end rounded-bottom-4">
+                        <a href="{% url 'hr:employee_list' %}" class="btn btn-light px-4 me-2">Discard Changes</a>
+                        <button type="submit" class="btn btn-add px-5 shadow-sm">
+                            <i class="fas fa-check-circle me-1"></i> Update Employee
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root { --main-green: #2d7c3f; --dark-green: #1a4d2e; }
+    .bg-success-dark { background-color: var(--main-green) !important; }
+    .text-success-dark { color: var(--main-green); }
+    .rounded-4 { border-radius: 12px !important; }
+    .btn-add { background-color: var(--main-green); color: white; font-weight: 600; border-radius: 8px; transition: 0.3s; }
+    .btn-add:hover { background-color: var(--dark-green); color: white; }
+    .section-label { color: var(--main-green); font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 15px; }
+    label { font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+</style>
+{% endblock %}

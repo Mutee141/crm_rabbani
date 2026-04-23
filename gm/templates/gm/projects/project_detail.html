@@ -1,0 +1,98 @@
+{% extends "gm/base.html" %}
+
+{% block title %}{{ project.name }} | Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4" style="background: linear-gradient(135deg, #2c5f7a 0%, #4a7ba7 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="header-icon-box me-3">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div>
+                    <h4 class="mb-1 fw-bold">{{ project.name }}</h4>
+                    <p class="mb-0" style="opacity: 0.9;">{{ project.get_project_type_display }} • {{ project.location }}</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'gm:project_edit' project.pk %}" class="btn btn-light btn-sm fw-bold">
+                    <i class="fas fa-edit me-1"></i> Edit Project
+                </a>
+                <a href="{% url 'gm:project_list' %}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-bold" style="color: #2c5f7a;">Project Overview</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Launch Date</small>
+                        <span class="fw-bold">{{ project.launch_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="status-pill status-{{ project.status|lower }}">{{ project.get_status_display }}</span>
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted d-block">Description</small>
+                        <p class="small text-secondary">{{ project.description|default:"No description provided." }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center" style="color: #2c5f7a;">
+                    <span>Project Units</span>
+                    <span class="badge bg-primary rounded-pill">{{ units.count }} Units</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="small fw-bold">Unit Name</th>
+                                <th class="small fw-bold">Floor</th>
+                                <th class="small fw-bold">Size (sqft)</th>
+                                <th class="small fw-bold">Price</th>
+                                <th class="small fw-bold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ unit.unit_name }}</td>
+                                <td>{{ unit.get_floor_display }}</td>
+                                <td>{{ unit.area_size }}</td>
+                                <td class="text-success fw-bold">{{ unit.price|floatformat:0 }}</td>
+                                <td>
+                                    <span class="badge {% if unit.status == 'AVAILABLE' %}bg-info{% else %}bg-secondary{% endif %}">
+                                        {{ unit.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No units registered.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .header-icon-box { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .status-pill { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+    .status-upcoming { background: #e3f2fd; color: #1976d2; }
+    .status-launched { background: #fff3e0; color: #f57c00; }
+    .status-completed { background: #e8f5e9; color: #2e7d32; }
+</style>
+{% endblock %}

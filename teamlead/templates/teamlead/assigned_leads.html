@@ -1,0 +1,239 @@
+{% extends "teamlead/base.html" %}
+
+{% block title %}Team Lead - Assignment History{% endblock %}
+{% block page_title %}Assigned Leads Tracking{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Assigned Leads Tracking</h3>
+                        <p style="margin: 0; opacity: 0.9;">Monitor all assigned leads, feedback, and sales performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS SECTION -->
+<div class="row g-3 mb-4">
+    <!-- Total Assigned Leads -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Assigned Leads</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_assigned }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-list-ul"></i> All assignments
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leads with Feedback -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Leads with Feedback</div>
+                    <div class="stat-value" style="color: #ffa500;">{{ leads_with_feedback }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-comment-dots"></i> Feedback provided
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Converted Sales -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Converted Sales</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ converted_sales }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-dollar-sign"></i> Successful sales
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ASSIGNED LEADS TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-th-list me-2" style="color: #446bab;"></i>Assigned Leads Overview
+        </h5>
+
+        <!-- FILTERS -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.5rem; display: block;">
+                    <i class="fas fa-search me-1"></i>Search Lead
+                </label>
+                <input type="text" id="tableSearch" class="form-control" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1;" placeholder="Search by name or ID...">
+            </div>
+            <div class="col-md-3">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.5rem; display: block;">
+                    <i class="fas fa-filter me-1"></i>Filter by Level
+                </label>
+                <select id="levelFilter" class="form-select" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1;">
+                    <option value="">All Levels</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Team Lead">Team Lead</option>
+                    <option value="BDE">BDE</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label style="font-size: 0.85rem; font-weight: 600; color: #1a3a4a; margin-bottom: 0.5rem; display: block;">
+                    <i class="fas fa-flag me-1"></i>Filter by Status
+                </label>
+                <select id="statusFilter" class="form-select" style="padding: 0.75rem 1rem; border-radius: 0.75rem; border: 2px solid #ecf0f1;">
+                    <option value="">All Status</option>
+                    <option value="Call — No Response">Call — No Response</option>
+                    <option value="Busy">Busy</option>
+                    <option value="Email Send">Email Send</option>
+                    <option value="Interested">Interested</option>
+                    <option value="Not Interested">Not Interested</option>
+                    <option value="Converted to Sale">Converted to Sale</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle mb-0" id="leadsTable">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">ID</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Name</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned To</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Level</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Feedback</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Sale</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history %}
+                    <tr class="lead-row" 
+                        data-level="{{ item.assigned_to.profile.designation }}"
+                        data-status="{{ item.lead.status }}"
+                        style="transition: background-color 0.2s;">
+                        <td>
+                            <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                #{{ item.lead.id }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #446bab, #1a3a4a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                    {{ item.lead.name|slice:":1"|upper }}
+                                </div>
+                                <span style="font-weight: 700; color: #1a3a4a;">{{ item.lead.name }}</span>
+                            </div>
+                        </td>
+                        <td style="color: #1a3a4a; font-weight: 600;">{{ item.assigned_to.username }}</td>
+                        <td>
+                            <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                {{ item.assigned_to.profile.designation }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                {{ item.lead.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <button style="background: rgba(68, 107, 171, 0.15); color: #446bab; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.85rem;">
+                                <i class="fas fa-comment-dots me-1"></i> View (1)
+                            </button>
+                        </td>
+                        <td style="color: #95a5a6; font-size: 0.9rem;">No sale</td>
+                        <td>
+                            <div style="color: #1a3a4a; font-weight: 600; font-size: 0.9rem;">{{ item.assigned_at|date:"M d, Y" }}</div>
+                            <small style="color: #95a5a6;">{{ item.assigned_at|date:"h:i A" }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #446bab;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15);
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    button:hover {
+        background: #446bab !important;
+        color: white !important;
+        transform: translateY(-2px);
+    }
+</style>
+
+<script>
+    const searchInput = document.getElementById('tableSearch');
+    const levelFilter = document.getElementById('levelFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const rows = document.querySelectorAll('.lead-row');
+
+    function filterTable() {
+        const searchText = searchInput.value.toLowerCase();
+        const levelVal = levelFilter.value;
+        const statusVal = statusFilter.value;
+
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            const rowLevel = row.getAttribute('data-level');
+            const rowStatus = row.getAttribute('data-status');
+
+            const textMatch = rowText.includes(searchText);
+            const levelMatch = levelVal === "" || rowLevel === levelVal;
+            const statusMatch = statusVal === "" || rowStatus === statusVal;
+
+            if (textMatch && levelMatch && statusMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+    levelFilter.addEventListener('change', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+</script>
+
+{% endblock %}

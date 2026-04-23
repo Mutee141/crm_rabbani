@@ -1,0 +1,231 @@
+{% extends "manager/base.html" %}
+
+{% block title %}Sale Summary Report - Manager{% endblock %}
+{% block page_title %}Sale Summary Report{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Sale Summary Report</h3>
+                        <p style="margin: 0; opacity: 0.9;">Tracking all conversions and sales supervised by you</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SALES STATS -->
+<div class="row g-3 mb-4">
+    <!-- Total Sales -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Sales</div>
+                    <div class="stat-value" style="color: #446bab;">{{ sales.count }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-receipt"></i> Recorded sales
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" style="color: #26d07c; font-size: 1.8rem;">0 PKR</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> Total amount
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avg Sale Value -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Avg Sale Value</div>
+                    <div class="stat-value" style="color: #ffa500; font-size: 1.8rem;">0 PKR</div>
+                    <div class="stat-change">
+                        <i class="fas fa-chart-line"></i> Per sale
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Pending -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Payment Pending</div>
+                    <div class="stat-value" style="color: #ff5757;">0</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-hourglass-half"></i> Awaiting payment
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SALES RECORDS TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-file-contract me-2" style="color: #446bab;"></i>Sale Records
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle mb-0">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Date</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Name</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Project & Unit</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Sale Amount</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Payment</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Converted By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr style="transition: background-color 0.2s;">
+                        <td>
+                            <span style="color: #95a5a6; font-weight: 600;">
+                                <i class="fas fa-calendar me-1"></i>{{ sale.sale_date|date:"d M, Y" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #1a3a4a;">{{ sale.lead.name }}</div>
+                            <small style="color: #95a5a6;">
+                                <i class="fas fa-phone me-1"></i>{{ sale.lead.phone }}
+                            </small>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: #446bab;">{{ sale.project.name }}</div>
+                            <small style="color: #95a5a6;">Unit: {{ sale.project_unit.unit_name }}</small>
+                        </td>
+                        <td>
+                            <span style="font-weight: 800; color: #26d07c; font-size: 1rem;">
+                                PKR {{ sale.sale_amount }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>
+                                <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                    {{ sale.payment_stage }}
+                                </span>
+                            </div>
+                            <small style="color: #95a5a6;">{{ sale.payment_method }}</small>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #446bab, #1a3a4a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                    {{ sale.converted_by.username|slice:":1"|upper }}
+                                </div>
+                                <span style="font-weight: 600; color: #1a3a4a;">{{ sale.converted_by.username }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div style="color: #95a5a6;">
+                                <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                                <p style="font-size: 1.1rem; margin: 0.5rem 0;">No sales records found under your supervision.</p>
+                                <small style="color: #7f8c8d;">Sales will appear here when leads are converted</small>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- SUMMARY SECTION -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1rem; font-weight: 700; color: #1a3a4a; margin-bottom: 1rem;">
+                    <i class="fas fa-chart-line me-2" style="color: #446bab;"></i>Performance Metrics
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Total Conversions</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #446bab;">{{ sales.count }}</div>
+                            <small style="color: #7f8c8d;">Supervised sales</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(38, 208, 124, 0.08); border-radius: 0.75rem; border-left: 4px solid #26d07c;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Completed</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #26d07c;">0</div>
+                            <small style="color: #7f8c8d;">Payment received</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(255, 165, 0, 0.08); border-radius: 0.75rem; border-left: 4px solid #ffa500;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">In Progress</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ffa500;">0</div>
+                            <small style="color: #7f8c8d;">Pending payment</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div style="padding: 1.5rem; background: rgba(255, 87, 87, 0.08); border-radius: 0.75rem; border-left: 4px solid #ff5757;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">Success Rate</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ff5757;">0%</div>
+                            <small style="color: #7f8c8d;">Completion ratio</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,454 @@
+{% extends "hr/base.html" %}
+{% block title %}Employee List{% endblock %}
+{% block page_title %}Employee Management{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'hr:hr_dashboard' %}" class="text-decoration-none" style="color: #2d9d78;">Dashboard</a></li>
+        <li class="breadcrumb-item active">Employees</li>
+    </ol>
+</nav>
+
+<!-- WELCOME BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">👥 Employee Directory</h3>
+                <p style="margin: 0; opacity: 0.9;">Manage and organize your workforce efficiently</p>
+            </div>
+            <div style="font-size: 3rem; opacity: 0.2;">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS GRID -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Employees</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_employees }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> Active workforce
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Active Employees</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ active_employees }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check-circle"></i> Currently active
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Departments</div>
+                    <div class="stat-value" style="color: #ffa500;">{{ total_departments }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-building"></i> Departments
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-building"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Inactive</div>
+                    <div class="stat-value" style="color: #ff5757;">0</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-times-circle"></i> Inactive
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTERS & SEARCH SECTION -->
+<div class="card card-ghost mb-4">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-filter me-2"></i>Search & Filters
+        </h5>
+        
+        <form method="GET" action="{% url 'hr:employee_list' %}" class="row g-3 mt-2">
+            <!-- Search by Name -->
+            <div class="col-md-4">
+                <label class="form-label" style="font-weight: 600; color: #1a3a4a;">Search by Name or ID</label>
+                <div class="input-group">
+                    <span class="input-group-text" style="background: white; border-right: none; border: 2px solid #ecf0f1;">
+                        <i class="fas fa-search" style="color: #95a5a6;"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="form-control" 
+                        placeholder="Enter employee name or ID..."
+                        value="{{ search_name }}"
+                        style="border-left: none; border: 2px solid #ecf0f1;"
+                    >
+                </div>
+            </div>
+
+            <!-- Department Filter -->
+            <div class="col-md-3">
+                <label class="form-label" style="font-weight: 600; color: #1a3a4a;">Department</label>
+                <select name="department" class="form-select" style="border: 2px solid #ecf0f1;">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                        <option value="{{ dept }}" {% if filter_department == dept %}selected{% endif %}>
+                            {{ dept }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="col-md-3">
+                <label class="form-label" style="font-weight: 600; color: #1a3a4a;">Status</label>
+                <select name="status" class="form-select" style="border: 2px solid #ecf0f1;">
+                    <option value="">All Status</option>
+                    <option value="Active" {% if request.GET.status == 'Active' %}selected{% endif %}>Active</option>
+                    <option value="Inactive" {% if request.GET.status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary-custom w-100" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none;">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Clear Filters Link -->
+        {% if search_name or filter_department %}
+            <div class="mt-3">
+                <a href="{% url 'hr:employee_list' %}" class="btn btn-sm" style="background: #ecf0f1; color: #7f8c8d; border-radius: 0.5rem; padding: 0.5rem 1rem; border: none;">
+                    <i class="fas fa-times me-1"></i>Clear Filters
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ACTION HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 0.3rem;">
+            <i class="fas fa-list me-2" style="color: #446bab;"></i>Employee List
+        </h5>
+        <small style="color: #95a5a6;">
+            Showing 
+            <span style="font-weight: 600; color: #446bab;">{{ employees|length }}</span> 
+            employee(s)
+        </small>
+    </div>
+    <button 
+        type="button" 
+        class="btn btn-primary-custom" 
+        data-bs-toggle="modal" 
+        data-bs-target="#addEmployeeModal"
+        style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;"
+    >
+        <i class="fas fa-plus-circle me-2"></i> Add New Employee
+    </button>
+</div>
+
+<!-- EMPLOYEES TABLE -->
+<div class="card card-ghost">
+    <div class="card-body p-0">
+        {% if employees %}
+            <div class="table-responsive">
+                <table class="table table-custom table-hover align-middle mb-0">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">EMP ID</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Full Name</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Designation</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Department</th>
+                            <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                            <th class="text-end" style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td style="font-weight: 700; color: #446bab;">{{ emp.emp_id }}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #1a3a4a;">{{ emp.name }}</div>
+                                <small style="color: #95a5a6;">{{ emp.email|default:"No email" }}</small>
+                            </td>
+                            <td style="color: #7f8c8d;">{{ emp.designation }}</td>
+                            <td>
+                                <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">{{ emp.department }}</span>
+                            </td>
+                            <td>
+                                {% if emp.status == "Active" %}
+                                    <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1"></i>Active
+                                    </span>
+                                {% else %}
+                                    <span style="background: rgba(255, 87, 87, 0.15); color: #ff5757; padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+                                        <i class="fas fa-times-circle me-1"></i>Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a 
+                                        href="{% url 'hr:employee_update' emp.pk %}" 
+                                        class="btn-sm-action btn-edit" 
+                                        title="Edit Employee"
+                                    >
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a 
+                                        href="{% url 'hr:employee_delete' emp.pk %}" 
+                                        class="btn-sm-action btn-delete"
+                                        onclick="return confirm('Are you sure you want to delete {{ emp.name }}?');"
+                                        title="Delete Employee"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div style="padding: 3rem 2rem; text-align: center;">
+                <div style="font-size: 4rem; color: #95a5a6; opacity: 0.3; margin-bottom: 1rem;">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h5 style="color: #7f8c8d; margin-bottom: 0.5rem; font-weight: 600;">No Employees Found</h5>
+                <p style="color: #95a5a6; margin-bottom: 1.5rem;">
+                    {% if search_name or filter_department %}
+                        Try adjusting your search or filter criteria
+                    {% else %}
+                        Start by adding your first employee
+                    {% endif %}
+                </p>
+                <button 
+                    type="button" 
+                    class="btn btn-primary-custom" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#addEmployeeModal"
+                    style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;"
+                >
+                    <i class="fas fa-plus-circle me-2"></i> Add New Employee
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 1.25rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-radius: 1.25rem 1.25rem 0 0;">
+                <h5 class="modal-title" id="addEmployeeModalLabel" style="font-weight: 800; font-size: 1.3rem;">
+                    <i class="fas fa-user-plus me-2"></i>Add New Employee
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="POST" action="{% url 'hr:employee_list' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <!-- Display form errors if any -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        {% for field in form %}
+                            {% if field.name != 'password' %}
+                                <div class="{% if field.widget.input_type == 'checkbox' %}col-12{% else %}col-md-6{% endif %} mb-3">
+                                    <label for="{{ field.id_for_label }}" class="form-label" style="font-weight: 600; color: #1a3a4a;">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span style="color: #ff5757;">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ field.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="border-top: 1px solid #ecf0f1;">
+                    <button type="button" class="btn" style="background: #ecf0f1; color: #7f8c8d; border: none; border-radius: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600;" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary-custom" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); border: none; font-weight: 600;">
+                        <i class="fas fa-save me-2"></i>Add Employee
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles for this page -->
+<style>
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: #2d9d78;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #1a3a4a;
+    }
+
+    .breadcrumb-item.active {
+        color: #95a5a6;
+    }
+
+    .input-group-text {
+        border: 2px solid #ecf0f1;
+        background: white !important;
+    }
+
+    .form-select {
+        border: 2px solid #ecf0f1 !important;
+        color: #1a3a4a;
+    }
+
+    .form-select:focus {
+        border-color: #446bab !important;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15) !important;
+    }
+
+    .form-control:focus {
+        border-color: #446bab !important;
+        box-shadow: 0 0 0 0.2rem rgba(68, 107, 171, 0.15) !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+
+    .btn-sm-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+    }
+
+    .btn-edit:hover {
+        background: #446bab;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: rgba(255, 87, 87, 0.15);
+        color: #ff5757;
+    }
+
+    .btn-delete:hover {
+        background: #ff5757;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #446bab;
+        line-height: 1;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #95a5a6;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-change {
+        font-size: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #ecf0f1;
+        color: #446bab;
+    }
+
+    .stat-change.positive {
+        color: #26d07c;
+    }
+
+    .stat-change.negative {
+        color: #ff5757;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "gm/base.html" %}
+
+{% block page_title %}Project Sales Performance{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value text-primary">{{ total_projects }}</div>
+            <div class="stat-change">Total projects in portfolio</div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-label">Top Performing Project</div>
+            <div class="stat-value text-success" style="font-size: 1.8rem;">
+                {% if top_project %}{{ top_project.name }}{% else %}N/A{% endif %}
+            </div>
+            <div class="stat-change text-success">
+                Highest revenue generator
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 class="section-title">Project Revenue Breakdown</h5>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th class="text-center">Units Sold</th>
+                        <th class="text-end">Total Revenue</th>
+                        <th class="text-center">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in project_performance %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-primary">{{ project.name }}</div>
+                            <small class="text-muted">{{ project.location }}</small>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-primary">{{ project.sales_count|default:0 }} Sales</span>
+                        </td>
+                        <td class="text-end fw-bold">
+                            PKR {{ project.total_revenue|default:0|floatformat:0 }}
+                        </td>
+                        <td class="text-center">
+                            {% if project.total_revenue > 0 %}
+                                <i class="fas fa-trending-up text-success"></i>
+                            {% else %}
+                                <i class="fas fa-minus text-muted"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">No project data available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

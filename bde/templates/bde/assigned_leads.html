@@ -1,0 +1,178 @@
+{% extends "bde/base.html" %}
+
+{% block title %}Assigned Leads - BDE{% endblock %}
+{% block page_title %}Assigned Leads Tracking{% endblock %}
+
+{% block content %}
+
+<!-- HEADER BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-weight: 800; margin-bottom: 0.5rem;">Assigned Leads Tracking</h3>
+                        <p style="margin: 0; opacity: 0.9;">Monitor all your assigned leads and feedback</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS SECTION -->
+<div class="row g-3 mb-4">
+    <!-- Total Assigned Leads -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Assigned Leads</div>
+                    <div class="stat-value" style="color: #446bab;">{{ leads.count }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-list"></i> Your leads
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leads with Feedback -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Feedback Provided</div>
+                    <div class="stat-value" style="color: #26d07c;">0</div>
+                    <div class="stat-change">
+                        <i class="fas fa-comment"></i> Leads updated
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-comment-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Converted Sales -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Converted Sales</div>
+                    <div class="stat-value" style="color: #ffa500;">0</div>
+                    <div class="stat-change">
+                        <i class="fas fa-dollar-sign"></i> Successful sales
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ASSIGNED LEADS TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-tasks me-2" style="color: #446bab;"></i>Assigned Leads Overview
+        </h5>
+
+        <!-- FILTERS -->
+        <div class="row g-2 mb-4">
+            <div class="col-md-6">
+                <div class="input-group" style="border-radius: 0.75rem; overflow: hidden;">
+                    <span class="input-group-text" style="background: white; border: 2px solid #ecf0f1; border-right: none;">
+                        <i class="fas fa-search" style="color: #95a5a6;"></i>
+                    </span>
+                    <input type="text" class="form-control" style="border: 2px solid #ecf0f1; border-left: none;" placeholder="Search by name or ID...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" style="border: 2px solid #ecf0f1; border-radius: 0.75rem;">
+                    <option selected>All Status</option>
+                    <option>Pending</option>
+                    <option>Converted</option>
+                    <option>In Progress</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle mb-0">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">ID</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Lead Name</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned By</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Status</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Assigned Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in leads %}
+<tr style="transition: background-color 0.2s; border-bottom: 1px solid #f1f4f8;">
+    <td style="padding: 1rem 0.75rem;">
+        <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">
+            #{{ assignment.lead.id }}
+        </span>
+    </td>
+    <td style="padding: 1rem 0.75rem;">
+        <div style="font-weight: 700; color: #1a3a4a; font-size: 1rem;">
+            {{ assignment.lead.name|default:"Unnamed Lead" }}
+        </div>
+        <div style="font-size: 0.75rem; color: #95a5a6;">
+            <i class="fas fa-link me-1"></i>{{ assignment.lead.source|default:"Direct" }}
+        </div>
+    </td>
+    <td style="padding: 1rem 0.75rem;">
+        <div style="font-weight: 600; color: #446bab;">
+            <i class="fas fa-user-circle me-1"></i>
+            {{ assignment.assigned_by.get_full_name|default:assignment.assigned_by.username }}
+        </div>
+    </td>
+    <td style="padding: 1rem 0.75rem;">
+        {% if assignment.lead.status == 'PENDING' or assignment.lead.status == 'Assigned' %}
+            <span style="background: rgba(255, 165, 0, 0.15); color: #ffa500; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">
+                <i class="fas fa-hourglass-half me-1"></i>{{ assignment.lead.status }}
+            </span>
+        {% elif assignment.lead.status == 'Converted' %}
+            <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">
+                <i class="fas fa-check-circle me-1"></i>{{ assignment.lead.status }}
+            </span>
+        {% else %}
+            <span style="background: rgba(68, 107, 171, 0.1); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem; text-transform: uppercase;">
+                {{ assignment.lead.status }}
+            </span>
+        {% endif %}
+    </td>
+    <td style="padding: 1rem 0.75rem; color: #95a5a6; font-size: 0.9rem;">
+        <i class="fas fa-calendar-alt me-1"></i>{{ assignment.assigned_at|date:"d M Y" }}
+    </td>
+</tr>
+{% empty %}
+{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,535 @@
+{% extends "hr/base.html" %}
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Banner */
+    .report-banner {
+        background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%);
+        color: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+    }
+
+    .report-banner h1 {
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .report-banner p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .banner-icon {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    /* Filter Card */
+    .filter-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+        margin-bottom: 2rem;
+    }
+
+    .filter-header {
+        background: transparent;
+        border-bottom: 2px solid #ecf0f1;
+        padding: 1.5rem;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .filter-header h5 {
+        font-weight: 800;
+        color: #1a3a4a;
+        margin: 0;
+    }
+
+    .filter-header i {
+        color: #446bab;
+    }
+
+    /* Form Styling */
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .filter-label i {
+        color: #446bab;
+    }
+
+    .custom-input {
+        border: 2px solid #ecf0f1;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        background-color: #f9fafb;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-input:focus {
+        background-color: white;
+        border-color: #2d9d78;
+        box-shadow: 0 0 0 3px rgba(45, 157, 120, 0.1);
+        outline: none;
+    }
+
+    /* Buttons */
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #2d9d78 0%, #1a6b52 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(45, 157, 120, 0.3);
+        color: white;
+    }
+
+    .btn-light {
+        background: white;
+        color: #1a3a4a;
+        border: 2px solid #ecf0f1;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-light:hover {
+        background: #f5f6f8;
+        border-color: #2d9d78;
+        color: #2d9d78;
+    }
+
+    .btn-outline-danger {
+        color: #ff5757;
+        border: 2px solid #ff5757;
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-outline-danger:hover {
+        background: #ff5757;
+        color: white;
+    }
+
+    .btn-outline-success {
+        color: #2d9d78;
+        border: 2px solid #2d9d78;
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-outline-success:hover {
+        background: #2d9d78;
+        color: white;
+    }
+
+    /* Divider */
+    .vr {
+        width: 1px;
+        height: 30px;
+        background-color: #ecf0f1;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /* Report Card */
+    .report-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: none;
+        overflow: hidden;
+    }
+
+    .report-header {
+        background: white;
+        padding: 1.5rem;
+        border-bottom: 2px solid #ecf0f1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .report-header h5 {
+        font-weight: 800;
+        color: #1a3a4a;
+        margin: 0;
+    }
+
+    .badge-count {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    /* Table Styling */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: #f8fafc;
+        border-bottom: 2px solid #ecf0f1;
+    }
+
+    .table thead th {
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #1a3a4a;
+        padding: 1rem;
+        border: none;
+    }
+
+    .table tbody tr {
+        border-bottom: 1px solid #ecf0f1;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(68, 107, 171, 0.05);
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        border: none;
+        vertical-align: middle;
+    }
+
+    .emp-id {
+        font-weight: 700;
+        color: #446bab;
+    }
+
+    .emp-name {
+        font-weight: 700;
+        color: #1a3a4a;
+    }
+
+    .emp-dept {
+        font-size: 0.85rem;
+        color: #95a5a6;
+    }
+
+    /* Status Badges */
+    .badge-present {
+        background: rgba(38, 208, 124, 0.15);
+        color: #26d07c;
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-absent {
+        background: rgba(255, 87, 87, 0.15);
+        color: #ff5757;
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-other {
+        background: rgba(149, 165, 166, 0.15);
+        color: #95a5a6;
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .check-in {
+        color: #26d07c;
+        font-weight: 600;
+    }
+
+    .check-out {
+        color: #ff5757;
+        font-weight: 600;
+    }
+
+    .hours {
+        font-weight: 700;
+        color: #1a3a4a;
+    }
+
+    .remarks {
+        font-size: 0.85rem;
+        color: #95a5a6;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .empty-state img {
+        opacity: 0.2;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h5 {
+        color: #1a3a4a;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #95a5a6;
+        font-size: 0.95rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .report-banner {
+            padding: 1.5rem;
+        }
+
+        .report-banner .d-flex {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .banner-icon {
+            margin-bottom: 1rem;
+        }
+
+        .filter-card .row {
+            margin-bottom: 0.5rem;
+        }
+
+        .table {
+            font-size: 0.85rem;
+        }
+
+        .table thead th {
+            padding: 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 0.75rem;
+        }
+
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .badge-count {
+            margin-top: 1rem;
+        }
+    }
+</style>
+
+<!-- Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="report-banner">
+            <div class="d-flex align-items-center">
+                <div class="banner-icon me-4">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <h1>Attendance Report</h1>
+                    <p>Generate comprehensive attendance reports for employees within a date range</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Card -->
+<div class="filter-card">
+    <div class="filter-header">
+        <h5>
+            <i class="fas fa-filter me-2"></i> Filter Records
+        </h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="GET">
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="filter-label">
+                        <i class="fas fa-user me-1"></i>Select Employee
+                    </label>
+                    <select name="employee" class="form-select custom-input">
+                        <option value="all">All Employees</option>
+                        {% for e in employees %}
+                        <option value="{{ e.id }}" {% if request.GET.employee == e.id|stringformat:"s" %}selected{% endif %}>
+                            {{ e.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="filter-label">
+                        <i class="fas fa-building me-1"></i>Department
+                    </label>
+                    <select name="department" class="form-select custom-input">
+                        <option value="all">All Departments</option>
+                        {% for d in departments %}
+                        <option value="{{ d }}" {% if request.GET.department == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="filter-label">
+                        <i class="fas fa-briefcase me-1"></i>Designation
+                    </label>
+                    <select name="designation" class="form-select custom-input">
+                        <option value="all">All Designations</option>
+                        {% for des in designations %}
+                        <option value="{{ des }}" {% if request.GET.designation == des %}selected{% endif %}>{{ des }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar-alt me-1"></i>From Date
+                    </label>
+                    <input type="date" name="from" value="{{ request.GET.from }}" class="form-control custom-input">
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">
+                        <i class="fas fa-calendar-alt me-1"></i>To Date
+                    </label>
+                    <input type="date" name="to" value="{{ request.GET.to }}" class="form-control custom-input">
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="d-flex gap-2 justify-content-end flex-wrap">
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="fas fa-check-circle me-2"></i>Apply Filters
+                        </button>
+                        <a href="{% url 'hr:attendance_report' %}" class="btn btn-light">
+                            <i class="fas fa-sync-alt me-2"></i>Reset
+                        </a>
+                        <div class="vr"></div>
+                        <a href="{% url 'hr:attendance_report_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-danger" title="Download PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                        <a href="{% url 'hr:attendance_report_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success" title="Download Excel">
+                            <i class="fas fa-file-excel"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Card -->
+<div class="report-card">
+    <div class="report-header">
+        <h5>Attendance Records</h5>
+        {% if results %}
+        <span class="badge-count">Total Records: {{ results|length }}</span>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        {% if results %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">#</th>
+                            <th>Emp ID</th>
+                            <th>Employee Name</th>
+                            <th>Status</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Total Hours</th>
+                            <th>Date</th>
+                            <th class="pe-4">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr>
+                            <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                            <td><span class="emp-id">{{ r.employee.emp_id }}</span></td>
+                            <td>
+                                <div>
+                                    <span class="emp-name">{{ r.employee.name }}</span>
+                                    <div class="emp-dept">{{ r.employee.department }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if r.status == "Present" %}
+                                    <span class="badge-present">
+                                        <i class="fas fa-circle me-1"></i> Present
+                                    </span>
+                                {% elif r.status == "Absent" %}
+                                    <span class="badge-absent">
+                                        <i class="fas fa-circle me-1"></i> Absent
+                                    </span>
+                                {% else %}
+                                    <span class="badge-other">{{ r.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="check-in">{{ r.check_in|default:"--" }}</td>
+                            <td class="check-out">{{ r.check_out|default:"--" }}</td>
+                            <td class="hours">{{ r.total_hours|default:"0" }}h</td>
+                            <td class="text-muted">{{ r.date|date:"d M Y" }}</td>
+                            <td class="remarks pe-4">{{ r.remarks|default:"--" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="No data" style="width: 80px;">
+                <h5>No attendance records found</h5>
+                <p>Try adjusting your filters to see more results</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

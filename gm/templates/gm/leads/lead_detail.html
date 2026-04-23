@@ -1,0 +1,49 @@
+{% extends "gm/base.html" %}
+{% block title %}Lead Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <h3 class="fw-bold mb-3">Lead Details</h3>
+
+    <!-- Lead Info -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <strong>Name:</strong> {{ lead.name }}<br>
+            <strong>Phone:</strong> {{ lead.phone }}<br>
+            <strong>Status:</strong>
+            <span class="badge bg-info">{{ lead.status }}</span>
+        </div>
+    </div>
+
+    <!-- Assignment Timeline -->
+    <div class="card shadow-sm">
+        <div class="card-header fw-bold">
+            Assignment History
+        </div>
+        <div class="card-body">
+
+            {% if assignments %}
+                <ul class="timeline">
+                    {% for a in assignments %}
+                        <li class="mb-3">
+                            <div class="fw-semibold">
+                                {{ a.assigned_by.username }}
+                                →
+                                {{ a.assigned_to.username }}
+                            </div>
+                            <small class="text-muted">
+                                {{ a.assigned_at|date:"d M Y, h:i A" }}
+                            </small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No assignment history found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

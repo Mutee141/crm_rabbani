@@ -1,0 +1,149 @@
+{% extends "hr/base.html" %}
+{% block title %}Add Attendance Schedule{% endblock %}
+{% block page_title %}Add Attendance Schedule{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h3 class="section-title mb-0">
+        <i class="fas fa-calendar-plus"></i> Add New Schedule
+    </h3>
+    <small style="color: #95a5a6;">Create a new attendance schedule for your organization</small>
+</div>
+
+<div class="card card-ghost p-5" style="max-width: 800px;">
+    <form method="POST" class="row g-4">
+        {% csrf_token %}
+
+        <div class="col-12">
+            <label class="form-label">
+                <i class="fas fa-tag"></i> Schedule Name
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.name.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-layer-group"></i> Schedule Type
+            </label>
+            {{ form.schedule_type }}
+            {% if form.schedule_type.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.schedule_type.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-clock"></i> Check In Time
+            </label>
+            {{ form.check_in_time }}
+            {% if form.check_in_time.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.check_in_time.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-clock"></i> Check Out Time
+            </label>
+            {{ form.check_out_time }}
+            {% if form.check_out_time.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.check_out_time.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-hourglass-half"></i> Grace Minutes
+            </label>
+            {{ form.grace_minutes }}
+            {% if form.grace_minutes.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.grace_minutes.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-calendar-check"></i> Start Date
+            </label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.start_date.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">
+                <i class="fas fa-calendar-times"></i> End Date
+            </label>
+            {{ form.end_date }}
+            {% if form.end_date.errors %}
+                <div class="alert alert-danger small mt-2">
+                    {{ form.end_date.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <div style="padding: 0.75rem; background: rgba(36, 79, 99, 0.05); border-radius: 0.75rem;">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}" style="margin-bottom: 0;">
+                        <i class="fas fa-check-circle"></i> Mark as Active
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 pt-3">
+            <button type="submit" class="btn btn-primary-custom">
+                <i class="fas fa-save"></i> Save Schedule
+            </button>
+            <a href="{% url 'hr:attendance_schedule_list' %}" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-check-label {
+        font-weight: 600;
+        color: #2d7c3f;
+        cursor: pointer;
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #ecf0f1;
+        color: #2c3e50;
+        background: white;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #f5f7fa;
+        border-color: #2d7c3f;
+        color: #2d7c3f;
+        transform: translateY(-2px);
+    }
+</style>
+
+{% endblock %}

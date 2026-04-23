@@ -1,0 +1,136 @@
+
+<!-- ================================================================ -->
+<!-- DEPARTMENT_STATS_REPORT.HTML -->
+<!-- ================================================================ -->
+
+{% extends "hr/base.html" %}
+{% block title %}Department Attendance Statistics{% endblock %}
+{% block page_title %}Department Attendance Statistics{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="mb-4">
+    <div style="background: linear-gradient(135deg, #153855ff 0%, #244f63 100%); color: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); border-left: 5px solid #ef6f61;">
+        <h3 style="margin-bottom: 0.5rem; font-weight: 800;">
+            <i class="fas fa-building"></i> Department-Wise Attendance Statistics
+        </h3>
+        <small style="opacity: 0.9;">Analyze attendance performance across all departments</small>
+    </div>
+</div>
+
+<!-- FILTER CARD -->
+<div class="card card-ghost p-4 mb-4">
+    <div class="mb-3">
+        <h5 style="color: #2d7c3f; font-weight: 700;">
+            <i class="fas fa-filter"></i> Select Period
+        </h5>
+    </div>
+
+    <form method="GET" class="row g-3">
+        
+        <!-- Month Dropdown -->
+        <div class="col-md-4">
+            <label class="form-label">
+                <i class="fas fa-calendar-check"></i> Month
+            </label>
+            <select name="month" id="id_month" class="form-select">
+                <option value="">Select Month</option>
+                {% for month_num, month_name in month_list %}
+                    <option value="{{ month_num }}" {% if selected_month == month_num %}selected{% endif %}>
+                        {{ month_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Year Input -->
+        <div class="col-md-4">
+            <label class="form-label">
+                <i class="fas fa-calendar"></i> Year
+            </label>
+            <input type="number" name="year" id="id_year" class="form-control" 
+                   value="{{ selected_year|default:'' }}" placeholder="2025" min="2000" max="2100">
+        </div>
+
+        <!-- Generate Button -->
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-secondary w-100" style="background: linear-gradient(135deg, #ef6f61 0%, #e63946 100%); border: none; color: white; font-weight: 600; height: 45px;">
+                <i class="fas fa-chart-bar"></i> Generate Report
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- RESULTS TABLE -->
+<div class="card card-ghost p-4">
+    {% if results %}
+        <div class="table-responsive">
+            <table class="table table-custom table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 25%;">Department</th>
+                        <th style="width: 20%;">Total Records</th>
+                        <th style="width: 20%;">Present Days</th>
+                        <th style="width: 30%;">Attendance Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in results %}
+                        <tr>
+                            <td>
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 30px; height: 30px; background: linear-gradient(135deg, #ef6f61 0%, #e63946 100%); color: white; font-weight: 700; font-size: 0.85rem;">
+                                    {{ forloop.counter }}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #ef6f61 0%, #e63946 100%); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <strong style="color: #2d7c3f;">{{ record.department_name }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="background: rgba(36, 79, 99, 0.15); color: #2d7c3f; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 600;">
+                                    {{ record.total_records }}
+                                </span>
+                            </td>
+                            <td>
+                                <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 600;">
+                                    {{ record.present_days }}
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <div style="flex: 1; height: 8px; background: #ecf0f1; border-radius: 10px; overflow: hidden;">
+                                        <div style="width: {{ record.attendance_rate }}%; height: 100%; background: linear-gradient(90deg, #26d07c 0%, #1ca058 100%); border-radius: 10px;"></div>
+                                    </div>
+                                    <span style="color: {% if record.attendance_rate >= 80 %}#26d07c{% elif record.attendance_rate >= 60 %}#ffa502{% else %}#ff5757{% endif %}; font-weight: 700; min-width: 50px; text-align: right;">
+                                        {{ record.attendance_rate }}%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% elif selected_month and selected_year %}
+        <div style="text-align: center; padding: 3rem 2rem;">
+            <i class="fas fa-calendar-times" style="font-size: 3rem; color: #95a5a6; opacity: 0.5; margin-bottom: 1rem;"></i>
+            <h5 style="color: #95a5a6; margin-bottom: 0.5rem;">No Attendance Records Found</h5>
+            <p style="color: #bdc3c7; margin: 0;">No attendance data available for the selected month</p>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem 2rem;">
+            <i class="fas fa-calendar" style="font-size: 3rem; color: #95a5a6; opacity: 0.5; margin-bottom: 1rem;"></i>
+            <h5 style="color: #95a5a6; margin-bottom: 0.5rem;">Select Period to Generate Report</h5>
+            <p style="color: #bdc3c7; margin: 0;">Choose a month and year to view department statistics</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

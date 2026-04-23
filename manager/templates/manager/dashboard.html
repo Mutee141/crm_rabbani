@@ -1,0 +1,478 @@
+{% extends "manager/base.html" %}
+
+{% block title %}Manager Dashboard{% endblock %}
+{% block page_title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- WELCOME BANNER -->
+<div class="card card-ghost mb-4" style="background: linear-gradient(135deg, #1a3a4a 0%, #446bab 100%); color: white; border: none; border-top: 4px solid #ffa500;">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 style="font-weight: 800; margin-bottom: 0.5rem;">👋 Manager Dashboard, {{ manager_name }}!</h3>
+                <p style="margin: 0; opacity: 0.9;">Managerial overview & team performance metrics</p>
+            </div>
+            <div style="font-size: 3rem; opacity: 0.2;">👔</div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS GRID -->
+<div class="row g-3 mb-4">
+    <!-- Total Leads -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Total Leads</div>
+                    <div class="stat-value" style="color: #446bab;">{{ total_leads }}</div>
+                    <div class="stat-change">
+                        <i class="fas fa-circle-info"></i> Managed by team
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: rgba(68, 107, 171, 0.1); color: #446bab;">
+                    <i class="fas fa-filter"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Converted -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Converted</div>
+                    <div class="stat-value" style="color: #26d07c;">{{ converted }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> Successful conversions
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-double"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Revenue</div>
+                    <div class="stat-value" style="color: #ffa500; font-size: 1.8rem;">${{ revenue }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> Team earnings
+                    </div>
+                </div>
+                <div class="stat-icon secondary">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Feedback -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-flex-start">
+                <div>
+                    <div class="stat-label">Pending Feedback</div>
+                    <div class="stat-value" style="color: #ff5757;">{{ pending_tasks }}</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-info-circle"></i> Requires attention
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHARTS SECTION -->
+<div class="row g-4 mb-4">
+    <!-- Weekly Performance Chart -->
+    <div class="col-lg-8">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-chart-bar me-2" style="color: #446bab;"></i>Weekly Performance
+                </h5>
+                <div style="position: relative; height: 350px;">
+                    <canvas id="weeklyPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Distribution Chart -->
+    <div class="col-lg-4">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-chart-pie me-2" style="color: #446bab;"></i>Lead Status
+                </h5>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="leadStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ACTION CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'manager:assign_leads' %}" class="action-card">
+            <i class="fas fa-user-plus" style="color: #446bab;"></i>
+            <h6 style="color: #1a3a4a;">Assign Leads</h6>
+            <p>Distribute leads to team</p>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'manager:assigned_leads' %}" class="action-card">
+            <i class="fas fa-list-check" style="color: #446bab;"></i>
+            <h6 style="color: #1a3a4a;">View Assigned Leads</h6>
+            <p>Monitor lead status</p>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'manager:sale_entry' %}" class="action-card">
+            <i class="fas fa-file-invoice-dollar" style="color: #446bab;"></i>
+            <h6 style="color: #1a3a4a;">Sale Entry</h6>
+            <p>Record new sales</p>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+        <a href="{% url 'manager:self_feedback' %}" class="action-card">
+            <i class="fas fa-comments" style="color: #446bab;"></i>
+            <h6 style="color: #1a3a4a;">Self Feedback</h6>
+            <p>Provide team feedback</p>
+        </a>
+    </div>
+</div>
+
+<!-- TEAM LEADS PERFORMANCE TABLE -->
+<div class="card card-ghost">
+    <div class="card-body">
+        <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+            <i class="fas fa-users-cog me-2" style="color: #446bab;"></i> Team Leads Performance
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table table-custom table-hover align-middle">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Team Lead Name</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Department</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Total BDEs</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Active Leads</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem;">Target Achievement</th>
+                        <th style="color: #1a3a4a; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tl in team_leads %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #446bab, #1a3a4a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1rem;">
+                                    {{ tl.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700; color: #1a3a4a;">{{ tl.get_full_name|default:tl.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="color: #95a5a6; font-weight: 600;">{{ tl.profile.department|default:"Sales" }}</span>
+                        </td>
+                        <td>
+                            <span style="background: rgba(68, 107, 171, 0.15); color: #446bab; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">{{ tl.subordinates.count }}</span>
+                        </td>
+                        <td>
+                            <span style="background: rgba(38, 208, 124, 0.15); color: #26d07c; padding: 0.35rem 0.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.85rem;">24</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="progress" style="height: 6px; width: 100px; flex: 1;">
+                                    <div class="progress-bar" style="background: linear-gradient(90deg, #446bab, #26d07c); width: 75%;"></div>
+                                </div>
+                                <small style="color: #95a5a6; font-weight: 600; min-width: 35px;">75%</small>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <a href="#" class="btn btn-sm-action btn-edit" title="View Team">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5" style="color: #95a5a6;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                            <span>No Team Leads assigned yet.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK STATS ROW -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <div class="card card-ghost">
+            <div class="card-body">
+                <h5 style="font-size: 1.1rem; font-weight: 800; color: #1a3a4a; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 3px solid #ffa500; display: inline-block;">
+                    <i class="fas fa-chart-bar me-2" style="color: #446bab;"></i>Quick Statistics
+                </h5>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(68, 107, 171, 0.08); border-radius: 0.75rem; border-left: 4px solid #446bab;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem;">Total Team Members</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #446bab;">{{ total_leads }}</div>
+                            <div style="font-size: 0.85rem; color: #446bab; margin-top: 0.5rem;">
+                                <i class="fas fa-arrow-up"></i> Active leads
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(255, 165, 0, 0.08); border-radius: 0.75rem; border-left: 4px solid #ffa500;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem;">Conversion Rate</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #ffa500;">
+                                {% if total_leads > 0 %}
+                                    {{ converted|add:0 }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 0.85rem; color: #ffa500; margin-top: 0.5rem;">
+                                <i class="fas fa-check"></i> Successful deals
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div style="padding: 1.5rem; background: rgba(38, 208, 124, 0.08); border-radius: 0.75rem; border-left: 4px solid #26d07c;">
+                            <div style="font-size: 0.9rem; color: #95a5a6; margin-bottom: 0.5rem;">Team Revenue</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: #26d07c;">${{ revenue }}</div>
+                            <div style="font-size: 0.85rem; color: #26d07c; margin-top: 0.5rem;">
+                                <i class="fas fa-chart-line"></i> This period
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Weekly Performance Chart
+        const performanceCtx = document.getElementById('weeklyPerformanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Leads Assigned',
+                        data: {{ chart_leads|safe }},
+                        backgroundColor: '#446bab',
+                        borderColor: '#1a3a4a',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 28,
+                        hoverBackgroundColor: '#1a3a4a'
+                    },
+                    {
+                        label: 'Conversions',
+                        data: {{ chart_conversions|safe }},
+                        backgroundColor: '#26d07c',
+                        borderColor: '#1a8c5a',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 28,
+                        hoverBackgroundColor: '#1a8c5a'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            color: '#1a3a4a'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 58, 74, 0.9)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#7f8c8d',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#7f8c8d',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Lead Status Doughnut Chart
+        const statusCtx = document.getElementById('leadStatusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Converted', 'In Progress', 'Pending', 'Not Interested'],
+                datasets: [{
+                    data: [{{ converted }}, 15, 8, 12],
+                    backgroundColor: [
+                        '#446bab',
+                        '#26d07c',
+                        '#ffa500',
+                        '#ff5757'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 3,
+                    hoverOffset: 12,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            },
+                            color: '#1a3a4a'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 58, 74, 0.9)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 11
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + ' leads';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .btn-sm-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-edit {
+        background: rgba(68, 107, 171, 0.15);
+        color: #446bab;
+    }
+
+    .btn-edit:hover {
+        background: #446bab;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .action-card {
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        border-color: #446bab;
+        box-shadow: 0 8px 24px rgba(68, 107, 171, 0.15) !important;
+    }
+
+    .action-card h6 {
+        color: #1a3a4a !important;
+    }
+
+    .action-card p {
+        color: #95a5a6;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,305 @@
+{% extends "hr/base.html" %}
+{% load static %}
+
+{% block page_title %}Upload Attendance{% endblock %}
+
+{% block content %}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white p-4 shadow-sm border-0" style=   "background: linear-gradient(45deg, #1a3a4a, #446bab) !important; border-radius: 15px;">
+            <div class="d-flex align-items-center">
+                <div class="me-4">
+                    <div class="bg-white bg-opacity-25 p-3 rounded-circle">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="h3 mb-1 fw-bold text-white">Upload Biometric Attendance
+</h1>
+                    <p class="mb-0 opacity-75">Upload and process attendance XLS files from your biometric system</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card-ghost p-4">
+            <div class="mb-4">
+                <h5 style="color: #345973; font-weight: 700; margin-bottom: 1rem;">
+                    <i class="fas fa-file-upload"></i> Upload Excel File
+                </h5>
+                <p style="color: #95a5a6; margin: 0;">
+                    Upload an Excel file (.xls or .xlsx) containing attendance data. Make sure the file follows the required format.
+                </p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="fas fa-table"></i> Select Excel File
+                    </label>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" name="file" accept=".xls,.xlsx" class="form-control" id="fileInput" style="display: none;" required>
+                        
+                        <div style="text-align: center; padding: 2.5rem; cursor: pointer;">
+                            <div style="font-size: 2.5rem; color: #345973; margin-bottom: 1rem;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div style="font-weight: 600; color: #345973; margin-bottom: 0.5rem;">
+                                Click to upload or drag & drop
+                            </div>
+                            <div style="font-size: 0.9rem; color: #95a5a6;">
+                                Excel files (.xls, .xlsx) up to 10MB
+                            </div>
+                            <div id="fileName" style="margin-top: 1rem; color: #345973; font-weight: 600; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <button class="btn-primary-custom w-100" type="submit">
+                            <i class="fas fa-upload"></i> Upload File
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-secondary w-100" type="reset">
+                            <i class="fas fa-redo"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-ghost p-4">
+            <div style="color: #345973; font-weight: 700; margin-bottom: 1.5rem;">
+                <i class="fas fa-info-circle"></i> File Format Requirements
+            </div>
+
+            <div style="font-size: 0.9rem; color: #2c3e50; line-height: 1.8;">
+                <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #ecf0f1;">
+                    <div style="color: #345973; font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-check-circle"></i> Required Columns
+                    </div>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>Employee ID</li>
+                        <li>Date</li>
+                        <li>Check In</li>
+                        <li>Check Out</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #ecf0f1;">
+                    <div style="color: #ef6f61; font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-exclamation-circle"></i> Important Notes
+                    </div>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>File must be .xls or .xlsx</li>
+                        <li>Maximum file size: 10MB</li>
+                        <li>Data will be validated</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(45, 124, 63, 0.08); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #345973;">
+                    <div style="color: #345973; font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-download"></i> Sample File
+                    </div>
+                    <a href="#" style="color: #345973; text-decoration: none; font-weight: 500;">
+                        Download Template <i class="fas fa-arrow-down-short"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card-ghost p-0">
+            <div class="p-4" style="border-bottom: 1px solid #ecf0f1;">
+                <h5 style="color: #345973; font-weight: 700; margin: 0;">
+                    <i class="fas fa-history"></i> Upload History
+                </h5>
+            </div>
+
+            {% if uploads %}
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Uploaded At</th>
+                                <th>Status</th>
+                                <th>Records</th>
+                                <th>Remarks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in uploads %}
+                            <tr>
+                                <td>
+                                    <div class="list-item-name">
+                                        <i class="fas fa-file-excel"></i> {{ u.file.name }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-custom badge-primary">
+                                        <i class="fas fa-calendar"></i> {{ u.uploaded_at|date:"d M Y" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if u.status == "Success" %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Success
+                                        </span>
+                                    {% elif u.status == "Pending" %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-hourglass-start"></i> Pending
+                                        </span>
+                                    {% elif u.status == "Failed" %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle"></i> Failed
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ u.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong style="color: #345973;">{{ u.record_count|default:"0" }}</strong>
+                                </td>
+                                <td>
+                                    {% if u.remarks %}
+                                        <small class="text-muted" title="{{ u.remarks }}">
+                                            {{ u.remarks|truncatewords:5 }}
+                                        </small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-sm-action btn-edit" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="{% url 'hr:attendance_upload_delete' u.pk %}" 
+                                           class="btn-sm-action btn-delete" 
+                                           title="Delete"
+                                           onclick="return confirm('Are you sure you want to delete this upload record?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; color: #ecf0f1; margin-bottom: 1rem;">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h6 style="color: #95a5a6; margin-bottom: 0.5rem;">No Files Uploaded Yet</h6>
+                    <p style="color: #95a5a6; margin: 0;">Upload your first attendance file to get started</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Adding styles for the Delete Link to look like a button */
+    .btn-delete {
+        background-color: rgba(239, 111, 97, 0.1);
+        color: #ef6f61;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+    .btn-delete:hover {
+        background-color: #ef6f61;
+        color: white;
+    }
+    .upload-area {
+        border: 2px dashed #2d7c3f;
+        border-radius: 1rem;
+        background: rgba(45, 124, 63, 0.05);
+        transition: all 0.3s ease;
+    }
+    .upload-area:hover {
+        border-color: #ef6f61;
+        background: rgba(239, 111, 97, 0.05);
+    }
+    .upload-area.drag-over {
+        border-color: #ef6f61;
+        background: rgba(239, 111, 97, 0.1);
+        box-shadow: 0 8px 20px rgba(239, 111, 97, 0.2);
+    }
+    .btn-outline-secondary {
+        border: 2px solid #ecf0f1;
+        color: #2d7c3f;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-secondary:hover {
+        border-color: #2d7c3f;
+        background: rgba(45, 124, 63, 0.08);
+        color: #2d7c3f;
+    }
+    .section-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #2d7c3f;
+        margin-bottom: 0;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #ef6f61;
+        display: inline-block;
+    }
+</style>
+
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files.length > 0) {
+            fileName.textContent = '✓ ' + fileInput.files[0].name;
+            fileName.style.display = 'block';
+        }
+    });
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        fileInput.files = e.dataTransfer.files;
+        if (fileInput.files.length > 0) {
+            fileName.textContent = '✓ ' + fileInput.files[0].name;
+            fileName.style.display = 'block';
+        }
+    });
+</script>
+
+{% endblock %}
