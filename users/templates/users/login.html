@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Rabbani Group - Login{% endblock %}</title>
+    <title>{% block title %}Real Estate CRM & ERP System - Login{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -13,21 +13,21 @@
         }
 
         :root {
-            --primary: #265268ff;
-            --primary-dark: #1a3a4a;
-            --secondary: #2d9d78;
-            --accent: #ffa500;
-            --success: #26d07c;
-            --danger: #ff5757;
-            --light-bg: #f5f6f8;
-            --dark-bg: #0d1419;
-            --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --primary: #2c3e50;
+            --primary-dark: #1a252f;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-bg: #2c3e50;
+            --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0d1419 0%, #1a3a4a 50%, #265268 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -44,9 +44,9 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(45, 157, 120, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: moveBackground 20s linear infinite;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+            background-size: 60px 60px;
+            animation: moveBackground 25s linear infinite;
             z-index: -2;
         }
 
@@ -57,8 +57,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(68, 107, 171, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(45, 157, 120, 0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at 30% 40%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(118, 75, 162, 0.2) 0%, transparent 50%);
             z-index: -1;
         }
 
@@ -108,27 +108,48 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #446bab 0%, #265268 100%);
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
-            font-size: 45px;
+            font-size: 42px;
             font-weight: 900;
             color: white;
-            box-shadow: 0 15px 35px rgba(68, 107, 171, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
         .login-header h1 {
-            font-size: 28px;
+            font-size: 26px;
             color: var(--primary-dark);
             font-weight: 800;
             margin-bottom: 8px;
             letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .login-header p {
@@ -222,8 +243,8 @@
         .form-group input:focus {
             outline: none;
             background: white;
-            border-color: #446bab;
-            box-shadow: 0 0 0 4px rgba(68, 107, 171, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .form-group input::placeholder {
@@ -255,7 +276,7 @@
             cursor: pointer;
             width: 18px;
             height: 18px;
-            accent-color: #446bab;
+            accent-color: #667eea;
         }
 
         .remember-me label {
@@ -266,7 +287,7 @@
         }
 
         .forgot-password {
-            color: #446bab;
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
             transition: var(--transition);
@@ -283,23 +304,23 @@
         /* Login Button */
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #446bab 0%, #265268 100%);
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 13px;
+            border-radius: 15px;
+            font-size: 14px;
             font-weight: 800;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: var(--transition);
             text-transform: uppercase;
             margin-bottom: 24px;
-            box-shadow: 0 10px 25px rgba(68, 107, 171, 0.3);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             position: relative;
             overflow: hidden;
         }
@@ -323,8 +344,8 @@
         }
 
         .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(68, 107, 171, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 45px rgba(102, 126, 234, 0.5);
         }
 
         .login-btn:active {
@@ -342,7 +363,7 @@
             z-index: 1;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         /* Divider */
@@ -383,7 +404,7 @@
         }
 
         .signup-section a {
-            color: #446bab;
+            color: #667eea;
             text-decoration: none;
             font-weight: 700;
             transition: var(--transition);
@@ -403,7 +424,7 @@
         }
 
         .help-text a {
-            color: #446bab;
+            color: #667eea;
             text-decoration: none;
             font-weight: 600;
             transition: var(--transition);
@@ -448,10 +469,10 @@
             <!-- Header -->
             <div class="login-header">
                 <div class="logo-container">
-                    <div class="logo">R</div>
+                    <div class="logo">RE</div>
                 </div>
-                <h1>Rabbani Group</h1>
-                <p>Sign in to your account</p>
+                <h1>Real Estate CRM & ERP System</h1>
+                <p>Access your comprehensive real estate management platform</p>
             </div>
 
             <!-- Messages -->
